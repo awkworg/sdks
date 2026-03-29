@@ -13,7 +13,6 @@ npm workspace monorepo containing the Vignage embed SDKs.
 ## Getting started
 
 ```bash
-cd vignage-sdks/
 npm install
 ```
 
