@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vignage IIIF SDK — Test Harness</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 960px;
+            margin: 40px auto;
+            padding: 0 24px;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        h1 { font-size: 1.1rem; font-weight: 600; margin: 0 0 4px; }
+        .subtitle { color: #64748b; font-size: 0.875rem; margin: 0 0 32px; }
+        code { background: #e2e8f0; padding: 1px 5px; border-radius: 3px; font-size: 0.85em; }
+
+        .embed-row { margin-bottom: 32px; }
+        .embed-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .vignage-wrap { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+        .vignage-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: monospace;
+            padding: 3px 8px;
+            border-radius: 99px;
+            pointer-events: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .vignage-badge[data-state="idle"]          { background: #1e293b; color: #94a3b8; }
+        .vignage-badge[data-state="hovering"]      { background: #0ea5e9; color: #fff; }
+        .vignage-badge[data-state="loading"]       { background: #f59e0b; color: #fff; }
+        .vignage-badge[data-state="transitioning"] { background: #8b5cf6; color: #fff; }
+        .vignage-badge[data-state="interactive"]   { background: #22c55e; color: #fff; }
+
+        .reset-btn {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #475569;
+        }
+        .reset-btn:hover { background: #f8fafc; border-color: #94a3b8; }
+    </style>
+
+    <!--
+        data-viewer-base points at iiif.vignage.test for local dev.
+        In production: <script src="https://cdn.vignage.com/sdk/iiif.js" defer></script>
+    -->
+    <script src="/dist/iiif.js" data-viewer-base="https://iiif.vignage.test" defer></script>
+</head>
+<body>
+    <h1>Vignage IIIF SDK</h1>
+    <p class="subtitle">
+        <strong>Hover</strong> to preload the viewer &nbsp;·&nbsp;
+        <strong>Click</strong> to trigger the transition &nbsp;·&nbsp;
+        Run: <code>npm run dev -w @vignage/iiif-sdk</code> from <code>vignage-sdks/</code>
+    </p>
+
+    <div class="embed-row">
+        <div class="embed-label">800 × 450 — wide</div>
+        <img
+            class="vignage-iiif-embed"
+            data-identifier="col/abc123"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450'%3E%3Crect width='800' height='450' fill='%23e2e8f0'/%3E%3Crect x='0' y='180' width='800' height='90' fill='%23fde68a' opacity='.6'/%3E%3Ccircle cx='400' cy='225' r='8' fill='%23ef4444'/%3E%3Ctext x='400' y='260' font-family='system-ui' font-size='14' fill='%2364748b' text-anchor='middle'%3EHover then click to interact%3C/text%3E%3C/svg%3E"
+            width="800"
+            height="450"
+            alt="Sample IIIF Image — wide"
+            style="display:block;max-width:100%;height:auto;border-radius:8px;"
+        />
+        <button class="reset-btn" data-reset>↺ Reset</button>
+    </div>
+
+    <div class="embed-row">
+        <div class="embed-label">400 × 400 — square</div>
+        <img
+            class="vignage-iiif-embed"
+            data-identifier="col/def456"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23e2e8f0'/%3E%3Ccircle cx='200' cy='200' r='6' fill='%23ef4444'/%3E%3Ctext x='200' y='230' font-family='system-ui' font-size='12' fill='%2364748b' text-anchor='middle'%3EClick to interact%3C/text%3E%3C/svg%3E"
+            width="400"
+            height="400"
+            alt="Sample IIIF Image — square"
+            style="display:block;max-width:100%;height:auto;border-radius:8px;"
+        />
+        <button class="reset-btn" data-reset>↺ Reset</button>
+    </div>
+
+    <script>
+        document.addEventListener('vignaiiif:statechange', (e) => {
+            const img = e.target;
+            const wrap = img.closest('.vignage-wrap') ?? img.parentElement;
+            if (!wrap) return;
+
+            let badge = wrap.querySelector('.vignage-badge');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'vignage-badge';
+                if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
+                wrap.appendChild(badge);
+            }
+            badge.textContent = e.detail.state;
+            badge.dataset.state = e.detail.state;
+        });
+
+        document.querySelectorAll('[data-reset]').forEach((btn) => {
+            btn.addEventListener('click', () => location.reload());
+        });
+    </script>
+</body>
+</html>

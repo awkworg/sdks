@@ -1,0 +1,13 @@
+{
+  "name": "vignage-sdks",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "build":      "npm run build --workspaces --if-present",
+    "test":       "npm run test --workspaces --if-present",
+    "build:maps": "npm run build -w @vignage/maps-sdk",
+    "build:iiif": "npm run build -w @vignage/iiif-sdk",
+    "dev:maps":   "npm run dev -w @vignage/maps-sdk",
+    "dev:iiif":   "npm run dev -w @vignage/iiif-sdk"
+  }
+}

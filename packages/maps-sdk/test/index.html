@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vignage Maps SDK — Test Harness</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 960px;
+            margin: 40px auto;
+            padding: 0 24px;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+        h1 { font-size: 1.1rem; font-weight: 600; margin: 0 0 4px; }
+        .subtitle { color: #64748b; font-size: 0.875rem; margin: 0 0 32px; }
+        code { background: #e2e8f0; padding: 1px 5px; border-radius: 3px; font-size: 0.85em; }
+
+        .embed-row { margin-bottom: 32px; }
+        .embed-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        /* Wrapper the SDK creates — we style the badge relative to it */
+        .vignage-wrap { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+        /* State badge injected by the debug script below */
+        .vignage-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: monospace;
+            padding: 3px 8px;
+            border-radius: 99px;
+            pointer-events: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .vignage-badge[data-state="idle"]         { background: #1e293b; color: #94a3b8; }
+        .vignage-badge[data-state="hovering"]     { background: #0ea5e9; color: #fff; }
+        .vignage-badge[data-state="loading"]      { background: #f59e0b; color: #fff; }
+        .vignage-badge[data-state="transitioning"]{ background: #8b5cf6; color: #fff; }
+        .vignage-badge[data-state="interactive"]  { background: #22c55e; color: #fff; }
+
+        .reset-btn {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #475569;
+        }
+        .reset-btn:hover { background: #f8fafc; border-color: #94a3b8; }
+    </style>
+
+    <!--
+        data-maps-base is root-relative — works at any port.
+        In production: <script src="https://cdn.vignage.com/sdk/maps.js" defer></script>
+    -->
+    <script src="/dist/maps.js" data-maps-base="/test" defer></script>
+</head>
+<body>
+    <h1>Vignage Maps SDK</h1>
+    <p class="subtitle">
+        <strong>Hover</strong> to preload the iframe &nbsp;·&nbsp;
+        <strong>Click</strong> to trigger the transition &nbsp;·&nbsp;
+        Run: <code>npm run dev</code> + <code>npx serve . -p PORT</code> from <code>maps-sdk/</code>
+    </p>
+
+    <div class="embed-row">
+        <div class="embed-label">800 × 450 — wide (New York City, z10)</div>
+        <img
+            class="vignagemaps-embed"
+            data-hashid="map.html?lat=40.712&lng=-74.006&zoom=10&"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450'%3E%3Crect width='800' height='450' fill='%23e2e8f0'/%3E%3Crect x='0' y='180' width='800' height='90' fill='%23bfdbfe' opacity='.6'/%3E%3Cline x1='0' y1='150' x2='800' y2='150' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='800' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='400' cy='225' r='8' fill='%23ef4444'/%3E%3Ctext x='400' y='260' font-family='system-ui' font-size='14' fill='%2364748b' text-anchor='middle'%3EHover then click to interact%3C/text%3E%3C/svg%3E"
+            width="800"
+            height="450"
+            alt="Interactive map of New York City"
+            style="display:block;max-width:100%;height:auto;border-radius:8px;"
+        />
+        <button class="reset-btn" data-reset>↺ Reset</button>
+    </div>
+
+    <div class="embed-row">
+        <div class="embed-label">400 × 300 — narrow (Portland, z12)</div>
+        <img
+            class="vignagemaps-embed"
+            data-hashid="map.html?lat=45.523&lng=-122.676&zoom=12&"
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23e2e8f0'/%3E%3Crect x='0' y='100' width='400' height='100' fill='%23bfdbfe' opacity='.6'/%3E%3Cline x1='0' y1='100' x2='400' y2='100' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='400' y2='200' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='133' y1='0' x2='133' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='266' y1='0' x2='266' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='200' cy='150' r='6' fill='%23ef4444'/%3E%3Ctext x='200' y='180' font-family='system-ui' font-size='12' fill='%2364748b' text-anchor='middle'%3EClick to interact%3C/text%3E%3C/svg%3E"
+            width="400"
+            height="300"
+            alt="Interactive map of Portland, OR"
+            style="display:block;max-width:100%;height:auto;border-radius:8px;"
+        />
+        <button class="reset-btn" data-reset>↺ Reset</button>
+    </div>
+
+    <script>
+        // Debug overlay — attach a state badge to every embed, updated via SDK events
+        document.addEventListener('vignagemaps:statechange', (e) => {
+            const img = e.target;
+            const wrap = img.closest('.vignage-wrap') ?? img.parentElement;
+            if (!wrap) return;
+
+            let badge = wrap.querySelector('.vignage-badge');
+            if (!badge) {
+                badge = document.createElement('div');
+                badge.className = 'vignage-badge';
+                // Ensure wrap is positioned (SDK sets this, but badge is appended before wrap exists on first event)
+                if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
+                wrap.appendChild(badge);
+            }
+            badge.textContent = e.detail.state;
+            badge.dataset.state = e.detail.state;
+        });
+
+        // Reset buttons — reload the page scoped to that embed section
+        document.querySelectorAll('[data-reset]').forEach((btn) => {
+            btn.addEventListener('click', () => location.reload());
+        });
+    </script>
+</body>
+</html>

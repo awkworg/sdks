@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vignage Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body, #map { width: 100%; height: 100%; overflow: hidden; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/maplibre-gl@4/dist/maplibre-gl.js"></script>
+    <script>
+        const params = new URLSearchParams(location.search);
+        const lat  = parseFloat(params.get('lat')  ?? '40.712');
+        const lng  = parseFloat(params.get('lng')  ?? '-74.006');
+        const zoom = parseFloat(params.get('zoom') ?? '10');
+
+        const TILES_BASE = 'https://tiles.vignage.test';
+
+        // Both sources defined upfront. world covers z0-7, us covers z8-15.
+        // Layers reference the appropriate source and zoom range.
+        const style = {
+            version: 8,
+            glyphs: 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf',
+            sprite: 'https://protomaps.github.io/basemaps-assets/sprites/v4/light',
+            sources: {
+                world: {
+                    type: 'vector',
+                    tiles: [`${TILES_BASE}/world-z0-z7/{z}/{x}/{y}.mvt`],
+                    minzoom: 0,
+                    maxzoom: 7,
+                    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+                },
+                us: {
+                    type: 'vector',
+                    tiles: [`${TILES_BASE}/us-z8-z15/{z}/{x}/{y}.mvt`],
+                    minzoom: 8,
+                    maxzoom: 15,
+                },
+            },
+            layers: [
+                { id: 'background', type: 'background', paint: { 'background-color': '#e8e0d8' } },
+
+                // World layers (z0-7)
+                { id: 'earth',     type: 'fill',   source: 'world', 'source-layer': 'earth',     maxzoom: 8, paint: { 'fill-color': '#f5f0e8' } },
+                { id: 'water',     type: 'fill',   source: 'world', 'source-layer': 'water',     maxzoom: 8, paint: { 'fill-color': '#a8c8e8' } },
+                { id: 'landuse',   type: 'fill',   source: 'world', 'source-layer': 'landuse',   maxzoom: 8, paint: { 'fill-color': '#d8e8c8', 'fill-opacity': 0.6 } },
+                { id: 'roads',     type: 'line',   source: 'world', 'source-layer': 'roads',     maxzoom: 8, paint: { 'line-color': '#fff', 'line-width': 1 } },
+                { id: 'buildings', type: 'fill',   source: 'world', 'source-layer': 'buildings', maxzoom: 8, paint: { 'fill-color': '#ddd5c8', 'fill-outline-color': '#c8bfb0' } },
+                { id: 'places',    type: 'symbol', source: 'world', 'source-layer': 'places',    maxzoom: 8,
+                  layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Regular'], 'text-size': ['interpolate', ['linear'], ['zoom'], 2, 10, 7, 13], 'text-anchor': 'center' },
+                  paint: { 'text-color': '#334155', 'text-halo-color': '#f5f0e8', 'text-halo-width': 1.5 } },
+
+                // US detail layers (z8-15)
+                { id: 'earth-us',     type: 'fill',   source: 'us', 'source-layer': 'earth',     minzoom: 8, paint: { 'fill-color': '#f5f0e8' } },
+                { id: 'water-us',     type: 'fill',   source: 'us', 'source-layer': 'water',     minzoom: 8, paint: { 'fill-color': '#a8c8e8' } },
+                { id: 'landuse-us',   type: 'fill',   source: 'us', 'source-layer': 'landuse',   minzoom: 8, paint: { 'fill-color': '#d8e8c8', 'fill-opacity': 0.6 } },
+                { id: 'roads-us',     type: 'line',   source: 'us', 'source-layer': 'roads',     minzoom: 8,
+                  paint: { 'line-color': '#fff', 'line-width': ['interpolate', ['linear'], ['zoom'], 8, 0.5, 14, 4] } },
+                { id: 'buildings-us', type: 'fill',   source: 'us', 'source-layer': 'buildings', minzoom: 8, paint: { 'fill-color': '#ddd5c8', 'fill-outline-color': '#c8bfb0' } },
+                { id: 'places-us',    type: 'symbol', source: 'us', 'source-layer': 'places',    minzoom: 8,
+                  layout: { 'text-field': ['get', 'name'], 'text-font': ['Noto Sans Regular'], 'text-size': ['interpolate', ['linear'], ['zoom'], 8, 11, 14, 14], 'text-anchor': 'center' },
+                  paint: { 'text-color': '#334155', 'text-halo-color': '#f5f0e8', 'text-halo-width': 1.5 } },
+            ],
+        };
+
+        new maplibregl.Map({
+            container: 'map',
+            style,
+            center: [lng, lat],
+            zoom,
+            attributionControl: { compact: true },
+        });
+    </script>
+</body>
+</html>
