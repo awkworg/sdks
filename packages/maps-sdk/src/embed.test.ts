@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { EmbedMap } from './embed';
 
 const MAPS_BASE = 'https://maps.vignage.com';
@@ -99,12 +99,12 @@ describe('EmbedMap — state', () => {
 describe('EmbedMap — DOM wrapping', () => {
     beforeEach(() => { document.body.innerHTML = ''; });
 
-    it('wraps img in .vignage-wrap on hover', () => {
+    it('wraps img in .awkw-embed-wrap on hover', () => {
         const img = makeImg();
         new EmbedMap(img, MAPS_BASE);
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
-        const wrapper = document.querySelector('.vignage-wrap');
+        const wrapper = document.querySelector('.awkw-embed-wrap');
         expect(wrapper).not.toBeNull();
         expect(wrapper?.contains(img)).toBe(true);
     });
@@ -114,7 +114,7 @@ describe('EmbedMap — DOM wrapping', () => {
         new EmbedMap(img, MAPS_BASE);
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
-        const wrapper = document.querySelector<HTMLDivElement>('.vignage-wrap');
+        const wrapper = document.querySelector<HTMLDivElement>('.awkw-embed-wrap');
         expect(wrapper?.style.width).toBe('640px');
         expect(wrapper?.style.height).toBe('360px');
     });
@@ -125,7 +125,7 @@ describe('EmbedMap — DOM wrapping', () => {
         img.dispatchEvent(new MouseEvent('mouseenter'));
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
-        expect(document.querySelectorAll('.vignage-wrap').length).toBe(1);
+        expect(document.querySelectorAll('.awkw-embed-wrap').length).toBe(1);
     });
 });
 
@@ -236,10 +236,10 @@ describe('EmbedMap — transition', () => {
 describe('EmbedMap — events', () => {
     beforeEach(() => { document.body.innerHTML = ''; });
 
-    it('dispatches vignagemaps:statechange on hover', () => {
+    it('dispatches awkw-maps:statechange on hover', () => {
         const img = makeImg();
         const states: string[] = [];
-        img.addEventListener('vignagemaps:statechange', (e) => {
+        img.addEventListener('awkw-maps:statechange', (e) => {
             states.push((e as CustomEvent<{ state: string }>).detail.state);
         });
 
@@ -249,10 +249,10 @@ describe('EmbedMap — events', () => {
         expect(states).toContain('hovering');
     });
 
-    it('dispatches vignagemaps:statechange with identifier', () => {
+    it('dispatches awkw-maps:statechange with identifier', () => {
         const img = makeImg({ hashid: 'map42' });
         let detail: Record<string, unknown> = {};
-        img.addEventListener('vignagemaps:statechange', (e) => {
+        img.addEventListener('awkw-maps:statechange', (e) => {
             detail = (e as CustomEvent).detail;
         });
 
@@ -265,7 +265,7 @@ describe('EmbedMap — events', () => {
     it('bubbles statechange events', () => {
         const img = makeImg();
         let fired = false;
-        document.addEventListener('vignagemaps:statechange', () => { fired = true; });
+        document.addEventListener('awkw-maps:statechange', () => { fired = true; });
 
         new EmbedMap(img, MAPS_BASE);
         img.dispatchEvent(new MouseEvent('mouseenter'));

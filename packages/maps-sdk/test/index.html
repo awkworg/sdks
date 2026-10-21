@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vignage Maps SDK — Test Harness</title>
+    <title>awkw Maps SDK — Test Harness</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -29,10 +29,10 @@
         }
 
         /* Wrapper the SDK creates — we style the badge relative to it */
-        .vignage-wrap { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+        .awkw-embed-wrap { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
         /* State badge injected by the debug script below */
-        .vignage-badge {
+        .awkw-badge {
             position: absolute;
             top: 10px;
             left: 10px;
@@ -45,11 +45,11 @@
             pointer-events: none;
             transition: background 0.2s, color 0.2s;
         }
-        .vignage-badge[data-state="idle"]         { background: #1e293b; color: #94a3b8; }
-        .vignage-badge[data-state="hovering"]     { background: #0ea5e9; color: #fff; }
-        .vignage-badge[data-state="loading"]      { background: #f59e0b; color: #fff; }
-        .vignage-badge[data-state="transitioning"]{ background: #8b5cf6; color: #fff; }
-        .vignage-badge[data-state="interactive"]  { background: #22c55e; color: #fff; }
+        .awkw-badge[data-state="idle"]         { background: #1e293b; color: #94a3b8; }
+        .awkw-badge[data-state="hovering"]     { background: #0ea5e9; color: #fff; }
+        .awkw-badge[data-state="loading"]      { background: #f59e0b; color: #fff; }
+        .awkw-badge[data-state="transitioning"]{ background: #8b5cf6; color: #fff; }
+        .awkw-badge[data-state="interactive"]  { background: #22c55e; color: #fff; }
 
         .reset-btn {
             margin-top: 8px;
@@ -66,12 +66,12 @@
 
     <!--
         data-maps-base is root-relative — works at any port.
-        In production: <script src="https://cdn.vignage.com/sdk/maps.js" defer></script>
+        Not published yet: there is no hosted maps service.
     -->
     <script src="/dist/maps.js" data-maps-base="/test" defer></script>
 </head>
 <body>
-    <h1>Vignage Maps SDK</h1>
+    <h1>awkw Maps SDK</h1>
     <p class="subtitle">
         <strong>Hover</strong> to preload the iframe &nbsp;·&nbsp;
         <strong>Click</strong> to trigger the transition &nbsp;·&nbsp;
@@ -81,7 +81,7 @@
     <div class="embed-row">
         <div class="embed-label">800 × 450 — wide (New York City, z10)</div>
         <img
-            class="vignagemaps-embed"
+            class="awkw-maps-embed"
             data-hashid="map.html?lat=40.712&lng=-74.006&zoom=10&"
             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450'%3E%3Crect width='800' height='450' fill='%23e2e8f0'/%3E%3Crect x='0' y='180' width='800' height='90' fill='%23bfdbfe' opacity='.6'/%3E%3Cline x1='0' y1='150' x2='800' y2='150' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='800' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='400' cy='225' r='8' fill='%23ef4444'/%3E%3Ctext x='400' y='260' font-family='system-ui' font-size='14' fill='%2364748b' text-anchor='middle'%3EHover then click to interact%3C/text%3E%3C/svg%3E"
             width="800"
@@ -95,7 +95,7 @@
     <div class="embed-row">
         <div class="embed-label">400 × 300 — narrow (Portland, z12)</div>
         <img
-            class="vignagemaps-embed"
+            class="awkw-maps-embed"
             data-hashid="map.html?lat=45.523&lng=-122.676&zoom=12&"
             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23e2e8f0'/%3E%3Crect x='0' y='100' width='400' height='100' fill='%23bfdbfe' opacity='.6'/%3E%3Cline x1='0' y1='100' x2='400' y2='100' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='400' y2='200' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='133' y1='0' x2='133' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='266' y1='0' x2='266' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='200' cy='150' r='6' fill='%23ef4444'/%3E%3Ctext x='200' y='180' font-family='system-ui' font-size='12' fill='%2364748b' text-anchor='middle'%3EClick to interact%3C/text%3E%3C/svg%3E"
             width="400"
@@ -108,15 +108,15 @@
 
     <script>
         // Debug overlay — attach a state badge to every embed, updated via SDK events
-        document.addEventListener('vignagemaps:statechange', (e) => {
+        document.addEventListener('awkw-maps:statechange', (e) => {
             const img = e.target;
-            const wrap = img.closest('.vignage-wrap') ?? img.parentElement;
+            const wrap = img.closest('.awkw-embed-wrap') ?? img.parentElement;
             if (!wrap) return;
 
-            let badge = wrap.querySelector('.vignage-badge');
+            let badge = wrap.querySelector('.awkw-badge');
             if (!badge) {
                 badge = document.createElement('div');
-                badge.className = 'vignage-badge';
+                badge.className = 'awkw-badge';
                 // Ensure wrap is positioned (SDK sets this, but badge is appended before wrap exists on first event)
                 if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
                 wrap.appendChild(badge);

@@ -7,10 +7,10 @@ const _script = document.currentScript as HTMLScriptElement | null;
 const _defaultBase = (_script?.dataset.mapsBase ?? PRODUCTION_BASE).replace(/\/$/, '');
 
 export function init(root: Document = document, mapsBase: string = _defaultBase): void {
-    const images = root.querySelectorAll<HTMLImageElement>('img.vignagemaps-embed');
+    const images = root.querySelectorAll<HTMLImageElement>('img.awkw-maps-embed');
     images.forEach((img) => {
         if (!img.dataset.hashid) {
-            console.warn('[vignage-maps] <img> missing data-hashid, skipping:', img);
+            console.warn('[awkw-maps] <img> missing data-hashid, skipping:', img);
             return;
         }
         new EmbedMap(img, mapsBase);

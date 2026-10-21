@@ -1,14 +1,37 @@
-# @vignage/iiif-sdk
+# @awkw/iiif-embed
 
 Upgrades `<img>` IIIF thumbnails to interactive OpenSeaDragon viewers on user interaction.
 
 Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (served by `iiif.awkw.org`) is preloaded on hover and revealed on click with a blur/fade transition.
 
+## Install
+
+```bash
+npm install @awkw/iiif-embed
+```
+
+```javascript
+import { init } from '@awkw/iiif-embed';
+
+init(); // every img.awkw-iiif-embed on the page
+init({ viewerBase: 'https://iiif.example.org', root: someElement });
+```
+
+`init` is safe to call again after adding images: each image is set up once. It never runs on import, so a bundler can include the package without side effects.
+
+Or with no build step, from jsDelivr, which serves every npm release:
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@awkw/iiif-embed@0.1/dist/iiif.js" defer></script>
+```
+
+The script tag build sets itself up when the page is ready.
+
 ## Embed
 
 ```html
 <img
-    class="vignage-iiif-embed"
+    class="awkw-iiif-embed"
     data-identifier="tenant-slug/abc123xyz"
     src="https://iiif.awkw.org/tenant-slug/abc123xyz/full/800,/0/default.jpg"
     width="800"
@@ -19,7 +42,7 @@ Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (
 
 | Attribute | Required | Description |
 |-----------|----------|-------------|
-| `class="vignage-iiif-embed"` | Yes | Selector the SDK auto-initialises on |
+| `class="awkw-iiif-embed"` | Yes | Selector the SDK auto-initialises on |
 | `data-identifier` | Yes | `{prefix}/{identifier}` path — appended to the viewer base URL |
 | `width` / `height` | Recommended | Used as fallback dimensions if layout hasn't run |
 | `alt` | Recommended | Becomes the iframe `title` and `aria-label` |
@@ -29,10 +52,7 @@ Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (
 ## Script tag
 
 ```html
-<!-- Production -->
-<script src="https://cdn.vignage.com/sdk/iiif.js" defer></script>
-
-<!-- Override the base URL (e.g. local dev) -->
+<!-- Another viewer, such as a local one -->
 <script src="/dist/iiif.js" data-viewer-base="https://iiif.vignage.test" defer></script>
 ```
 
@@ -41,7 +61,7 @@ Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (
 ## Events
 
 ```javascript
-document.addEventListener('vignaiiif:statechange', (e) => {
+document.addEventListener('awkw-iiif:statechange', (e) => {
     console.log(e.detail.state);       // 'idle' | 'hovering' | 'loading' | 'transitioning' | 'interactive'
     console.log(e.detail.identifier);  // value of data-identifier
     console.log(e.target);             // the <img> element
@@ -50,18 +70,10 @@ document.addEventListener('vignaiiif:statechange', (e) => {
 
 The event bubbles, so listening on `document` catches all embeds on the page.
 
-## Programmatic init
-
-```javascript
-import { init } from '@vignage/iiif-sdk/src/index';
-
-init(containerElement, 'https://iiif.awkw.org');
-```
-
 ## Local dev
 
 ```bash
-# From vignage-sdks/
+# From the repository root
 npm run dev:iiif     # watch-build → packages/iiif-sdk/dist/iiif.js
 
 # Serve the repo root, then open:
@@ -73,5 +85,5 @@ The test harness at `test/index.html` uses `data-viewer-base="https://iiif.vigna
 ## Build
 
 ```bash
-npm run build:iiif   # → packages/iiif-sdk/dist/iiif.js (~3.6KB minified IIFE)
+npm run build:iiif   # → dist/index.js (ES module), dist/iiif.js (~3.7 kB minified script), dist/types/
 ```
