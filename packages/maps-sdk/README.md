@@ -10,7 +10,7 @@ Static image loads immediately (no JS overhead). The interactive iframe is prelo
 <img
     class="vignagemaps-embed"
     data-hashid="abc123"
-    src="https://iiif.vignage.com/col/abc123/full/800,/0/default.jpg"
+    src="https://iiif.awkw.org/col/abc123/full/800,/0/default.jpg"
     width="800"
     height="450"
     alt="Interactive map of New York City"

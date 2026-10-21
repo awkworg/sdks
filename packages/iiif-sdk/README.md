@@ -2,7 +2,7 @@
 
 Upgrades `<img>` IIIF thumbnails to interactive OpenSeaDragon viewers on user interaction.
 
-Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (served by `iiif.vignage.com`) is preloaded on hover and revealed on click with a blur/fade transition.
+Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (served by `iiif.awkw.org`) is preloaded on hover and revealed on click with a blur/fade transition.
 
 ## Embed
 
@@ -10,7 +10,7 @@ Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (
 <img
     class="vignage-iiif-embed"
     data-identifier="tenant-slug/abc123xyz"
-    src="https://iiif.vignage.com/tenant-slug/abc123xyz/full/800,/0/default.jpg"
+    src="https://iiif.awkw.org/tenant-slug/abc123xyz/full/800,/0/default.jpg"
     width="800"
     height="600"
     alt="Portrait of a Woman, 1847"
@@ -24,7 +24,7 @@ Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (
 | `width` / `height` | Recommended | Used as fallback dimensions if layout hasn't run |
 | `alt` | Recommended | Becomes the iframe `title` and `aria-label` |
 
-`data-identifier` matches the IIIF route structure at `iiif.vignage.com/{prefix}/{identifier}/embed`. For example, `data-identifier="col/abc123"` loads `https://iiif.vignage.com/col/abc123/embed`.
+`data-identifier` matches the IIIF route structure at `iiif.awkw.org/{prefix}/{identifier}/embed`. For example, `data-identifier="col/abc123"` loads `https://iiif.awkw.org/col/abc123/embed`.
 
 ## Script tag
 
@@ -36,7 +36,7 @@ Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (
 <script src="/dist/iiif.js" data-viewer-base="https://iiif.vignage.test" defer></script>
 ```
 
-`data-viewer-base` defaults to `https://iiif.vignage.com`. The iframe src becomes `{base}/{identifier}/embed`.
+`data-viewer-base` defaults to `https://iiif.awkw.org`. The iframe src becomes `{base}/{identifier}/embed`.
 
 ## Events
 
@@ -55,7 +55,7 @@ The event bubbles, so listening on `document` catches all embeds on the page.
 ```javascript
 import { init } from '@vignage/iiif-sdk/src/index';
 
-init(containerElement, 'https://iiif.vignage.com');
+init(containerElement, 'https://iiif.awkw.org');
 ```
 
 ## Local dev
