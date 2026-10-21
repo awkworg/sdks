@@ -7,7 +7,7 @@ export abstract class EmbedBase {
     protected abstract readIdentifier(img: HTMLImageElement): string;
     protected abstract buildIframeUrl(w: number, h: number): string;
     protected abstract get eventNamespace(): string;
-    protected abstract get ariaLabelNoun(): string;
+    protected abstract ariaLabelNoun(): string;
     protected abstract get iframeTitle(): string;
 
     // --- Protected, accessible to subclasses ---
@@ -28,7 +28,7 @@ export abstract class EmbedBase {
 
         if (!img.hasAttribute('tabindex')) img.setAttribute('tabindex', '0');
         img.setAttribute('role', 'button');
-        img.setAttribute('aria-label', `${img.alt || this.ariaLabelNoun} — click to interact`);
+        img.setAttribute('aria-label', `${img.alt || this.ariaLabelNoun()} — click to interact`);
         img.style.cursor = 'pointer';
 
         img.addEventListener('mouseenter', () => this.onHover(), { passive: true });
@@ -78,7 +78,7 @@ export abstract class EmbedBase {
         const h = Math.round(rect.height) || this.img.height || 450;
 
         const wrapper = document.createElement('div');
-        wrapper.className = 'vignage-wrap';
+        wrapper.className = 'awkw-embed-wrap';
         wrapper.style.cssText = `position:relative;display:inline-block;width:${w}px;height:${h}px;overflow:hidden;line-height:0;`;
 
         this.img.parentNode!.insertBefore(wrapper, this.img);

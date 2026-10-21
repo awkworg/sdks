@@ -1,22 +1,49 @@
 {
-  "name": "@vignage/iiif-sdk",
+  "name": "@awkw/iiif-embed",
   "version": "0.1.0",
-  "private": true,
+  "description": "Turn a static IIIF image into a deep zoom viewer when it is clicked.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awkworg/sdks.git",
+    "directory": "packages/iiif-sdk"
+  },
   "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/module.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "jsdelivr": "dist/iiif.js",
+  "unpkg": "dist/iiif.js",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --minify --outfile=dist/iiif.js --target=es2020 --format=iife",
+    "build": "rm -rf dist && npm run build:module && npm run build:script && npm run build:types",
+    "build:module": "esbuild src/module.ts --bundle --format=esm --target=es2020 --outfile=dist/index.js",
+    "build:script": "esbuild src/index.ts --bundle --minify --format=iife --target=es2020 --outfile=dist/iiif.js",
+    "build:types": "tsc -p tsconfig.build.json",
     "dev": "esbuild src/index.ts --bundle --outfile=dist/iiif.js --target=es2020 --format=iife --watch",
+    "prepack": "cp ../../LICENSE LICENSE && npm run build",
+    "postpack": "rm -f LICENSE",
     "test": "vitest run",
     "test:watch": "vitest"
-  },
-  "dependencies": {
-    "@vignage/embed-core": "*"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^3",
     "esbuild": "^0.25",
     "happy-dom": "^20.8.9",
     "typescript": "^5",
-    "vitest": "^3"
+    "vitest": "^3",
+    "@awkw/embed-core": "*"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

@@ -1,6 +1,6 @@
-import { EmbedBase } from '@vignage/embed-core';
+import { EmbedBase } from '@awkw/embed-core';
 
-export { EmbedState } from '@vignage/embed-core';
+export { EmbedState } from '@awkw/embed-core';
 
 export class EmbedIiif extends EmbedBase {
     private readonly viewerBase: string;
@@ -19,7 +19,7 @@ export class EmbedIiif extends EmbedBase {
         return `${this.viewerBase}/${this.identifier}/embed`;
     }
 
-    protected get eventNamespace(): string { return 'vignaiiif'; }
-    protected get ariaLabelNoun(): string { return 'Image'; }
+    protected get eventNamespace(): string { return 'awkw-iiif'; }
+    protected ariaLabelNoun(): string { return 'Image'; }
     protected get iframeTitle(): string { return this.img.alt || 'Interactive Image Viewer'; }
 }

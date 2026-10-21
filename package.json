@@ -1,13 +1,17 @@
 {
-  "name": "vignage-sdks",
+  "name": "awkw-sdks",
   "private": true,
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build":      "npm run build --workspaces --if-present",
-    "test":       "npm run test --workspaces --if-present",
-    "build:maps": "npm run build -w @vignage/maps-sdk",
-    "build:iiif": "npm run build -w @vignage/iiif-sdk",
-    "dev:maps":   "npm run dev -w @vignage/maps-sdk",
-    "dev:iiif":   "npm run dev -w @vignage/iiif-sdk"
-  }
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "build:maps": "npm run build -w @awkw/maps-embed",
+    "build:iiif": "npm run build -w @awkw/iiif-embed",
+    "dev:maps": "npm run dev -w @awkw/maps-embed",
+    "dev:iiif": "npm run dev -w @awkw/iiif-embed",
+    "types": "tsc -p packages/embed-core --noEmit && tsc -p packages/iiif-sdk --noEmit && tsc -p packages/maps-sdk --noEmit"
+  },
+  "license": "MIT"
 }

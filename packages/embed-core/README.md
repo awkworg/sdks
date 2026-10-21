@@ -1,4 +1,4 @@
-# @vignage/embed-core
+# @awkw/embed-core
 
 Internal package. Not published to npm — consumed as a workspace dependency by `maps-sdk` and `iiif-sdk`.
 
@@ -11,7 +11,7 @@ Contains:
 To create a new embed type, extend `EmbedBase` and implement these five members:
 
 ```typescript
-import { EmbedBase } from '@vignage/embed-core';
+import { EmbedBase } from '@awkw/embed-core';
 
 export class EmbedFoo extends EmbedBase {
     private readonly fooBase: string;
@@ -35,7 +35,7 @@ export class EmbedFoo extends EmbedBase {
     protected get eventNamespace(): string { return 'foo'; }
 
     // Fallback noun for aria-label when img.alt is empty
-    protected get ariaLabelNoun(): string { return 'Foo'; }
+    protected ariaLabelNoun(): string { return 'Foo'; }
 
     // iframe title attribute (used by screen readers)
     protected get iframeTitle(): string { return this.img.alt || 'Interactive Foo'; }
@@ -50,7 +50,7 @@ export class EmbedFoo extends EmbedBase {
 idle ──mouseenter/focus──► hovering ──click/Enter/Space──► loading ──iframe load──► transitioning ──transitionend──► interactive
 ```
 
-- **idle → hovering**: wraps img in `.vignage-wrap`, inserts hidden `<iframe>` (preload starts).
+- **idle → hovering**: wraps img in `.awkw-embed-wrap`, inserts hidden `<iframe>` (preload starts).
 - **hovering → loading**: blurs/scales the image.
 - **loading → transitioning**: iframe fades in (`opacity: 0 → 1`), `pointer-events` enabled.
 - **transitioning → interactive**: image hidden (`display: none`), `aria-label` removed.
@@ -62,7 +62,7 @@ Clicking from `idle` skips directly to `loading` (hover + activate in one gestur
 Each state change dispatches a bubbling `CustomEvent` on the `<img>` element:
 
 ```javascript
-img.addEventListener('vignagemaps:statechange', (e) => {
+img.addEventListener('awkw-maps:statechange', (e) => {
     console.log(e.detail.state);       // 'idle' | 'hovering' | 'loading' | 'transitioning' | 'interactive'
     console.log(e.detail.identifier);  // value of readIdentifier()
 });
@@ -71,7 +71,7 @@ img.addEventListener('vignagemaps:statechange', (e) => {
 ## Transition helpers
 
 ```typescript
-import { blurImage, revealIframe } from '@vignage/embed-core';
+import { blurImage, revealIframe } from '@awkw/embed-core';
 
 blurImage(img);
 // Sets: filter: blur(8px); transform: scale(1.02); with 0.3s ease transitions

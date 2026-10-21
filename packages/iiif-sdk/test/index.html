@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vignage IIIF SDK — Test Harness</title>
+    <title>awkw IIIF SDK — Test Harness</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
         body {
@@ -28,9 +28,9 @@
             margin-bottom: 8px;
         }
 
-        .vignage-wrap { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+        .awkw-embed-wrap { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
-        .vignage-badge {
+        .awkw-badge {
             position: absolute;
             top: 10px;
             left: 10px;
@@ -43,11 +43,11 @@
             pointer-events: none;
             transition: background 0.2s, color 0.2s;
         }
-        .vignage-badge[data-state="idle"]          { background: #1e293b; color: #94a3b8; }
-        .vignage-badge[data-state="hovering"]      { background: #0ea5e9; color: #fff; }
-        .vignage-badge[data-state="loading"]       { background: #f59e0b; color: #fff; }
-        .vignage-badge[data-state="transitioning"] { background: #8b5cf6; color: #fff; }
-        .vignage-badge[data-state="interactive"]   { background: #22c55e; color: #fff; }
+        .awkw-badge[data-state="idle"]          { background: #1e293b; color: #94a3b8; }
+        .awkw-badge[data-state="hovering"]      { background: #0ea5e9; color: #fff; }
+        .awkw-badge[data-state="loading"]       { background: #f59e0b; color: #fff; }
+        .awkw-badge[data-state="transitioning"] { background: #8b5cf6; color: #fff; }
+        .awkw-badge[data-state="interactive"]   { background: #22c55e; color: #fff; }
 
         .reset-btn {
             margin-top: 8px;
@@ -64,22 +64,22 @@
 
     <!--
         data-viewer-base points at iiif.vignage.test for local dev.
-        In production: <script src="https://cdn.vignage.com/sdk/iiif.js" defer></script>
+        Published: <script src="https://cdn.jsdelivr.net/npm/@awkw/iiif-embed@0.1/dist/iiif.js" defer></script>
     -->
     <script src="/dist/iiif.js" data-viewer-base="https://iiif.vignage.test" defer></script>
 </head>
 <body>
-    <h1>Vignage IIIF SDK</h1>
+    <h1>awkw IIIF SDK</h1>
     <p class="subtitle">
         <strong>Hover</strong> to preload the viewer &nbsp;·&nbsp;
         <strong>Click</strong> to trigger the transition &nbsp;·&nbsp;
-        Run: <code>npm run dev -w @vignage/iiif-sdk</code> from <code>vignage-sdks/</code>
+        Run: <code>npm run dev -w @awkw/iiif-embed</code> from the repository root
     </p>
 
     <div class="embed-row">
         <div class="embed-label">800 × 450 — wide</div>
         <img
-            class="vignage-iiif-embed"
+            class="awkw-iiif-embed"
             data-identifier="col/abc123"
             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450'%3E%3Crect width='800' height='450' fill='%23e2e8f0'/%3E%3Crect x='0' y='180' width='800' height='90' fill='%23fde68a' opacity='.6'/%3E%3Ccircle cx='400' cy='225' r='8' fill='%23ef4444'/%3E%3Ctext x='400' y='260' font-family='system-ui' font-size='14' fill='%2364748b' text-anchor='middle'%3EHover then click to interact%3C/text%3E%3C/svg%3E"
             width="800"
@@ -93,7 +93,7 @@
     <div class="embed-row">
         <div class="embed-label">400 × 400 — square</div>
         <img
-            class="vignage-iiif-embed"
+            class="awkw-iiif-embed"
             data-identifier="col/def456"
             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23e2e8f0'/%3E%3Ccircle cx='200' cy='200' r='6' fill='%23ef4444'/%3E%3Ctext x='200' y='230' font-family='system-ui' font-size='12' fill='%2364748b' text-anchor='middle'%3EClick to interact%3C/text%3E%3C/svg%3E"
             width="400"
@@ -105,15 +105,15 @@
     </div>
 
     <script>
-        document.addEventListener('vignaiiif:statechange', (e) => {
+        document.addEventListener('awkw-iiif:statechange', (e) => {
             const img = e.target;
-            const wrap = img.closest('.vignage-wrap') ?? img.parentElement;
+            const wrap = img.closest('.awkw-embed-wrap') ?? img.parentElement;
             if (!wrap) return;
 
-            let badge = wrap.querySelector('.vignage-badge');
+            let badge = wrap.querySelector('.awkw-badge');
             if (!badge) {
                 badge = document.createElement('div');
-                badge.className = 'vignage-badge';
+                badge.className = 'awkw-badge';
                 if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
                 wrap.appendChild(badge);
             }
