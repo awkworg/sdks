@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EmbedIiif } from './embed';
 
-const VIEWER_BASE = 'https://iiif.vignage.com';
+const VIEWER_BASE = 'https://iiif.awkw.org';
 
 function makeImg(overrides: Partial<{ identifier: string; width: number; height: number; alt: string }> = {}): HTMLImageElement {
     const img = document.createElement('img');
@@ -139,7 +139,7 @@ describe('EmbedIiif — iframe', () => {
 
         const iframe = document.querySelector<HTMLIFrameElement>('iframe');
         expect(iframe).not.toBeNull();
-        expect(iframe?.src).toBe('https://iiif.vignage.com/col/xyz789/embed');
+        expect(iframe?.src).toBe('https://iiif.awkw.org/col/xyz789/embed');
     });
 
     it('sets iframe title for accessibility', () => {

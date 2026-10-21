@@ -1,6 +1,6 @@
 import { EmbedIiif } from './embed';
 
-const PRODUCTION_BASE = 'https://iiif.vignage.com';
+const PRODUCTION_BASE = 'https://iiif.awkw.org';
 
 const _script = document.currentScript as HTMLScriptElement | null;
 const _defaultBase = (_script?.dataset.viewerBase ?? PRODUCTION_BASE).replace(/\/$/, '');
