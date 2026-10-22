@@ -1,7 +1,7 @@
 {
   "name": "@awkw/iiif-embed",
   "version": "0.1.0",
-  "description": "Turn a static IIIF image into a deep zoom viewer when it is clicked.",
+  "description": "Turn a static image from awkw's IIIF service into a deep zoom viewer when it is clicked.",
   "license": "MIT",
   "repository": {
     "type": "git",
