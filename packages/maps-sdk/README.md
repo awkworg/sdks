@@ -1,4 +1,4 @@
-# @vignage/maps-sdk
+# @awkw/maps-embed
 
 Upgrades `<img>` placeholders to interactive MapLibre GL JS maps on user interaction.
 
@@ -8,9 +8,9 @@ Static image loads immediately (no JS overhead). The interactive iframe is prelo
 
 ```html
 <img
-    class="vignagemaps-embed"
+    class="awkw-maps-embed"
     data-hashid="abc123"
-    src="https://iiif.vignage.com/col/abc123/full/800,/0/default.jpg"
+    src="https://iiif.awkw.org/col/abc123/full/800,/0/default.jpg"
     width="800"
     height="450"
     alt="Interactive map of New York City"
@@ -19,7 +19,7 @@ Static image loads immediately (no JS overhead). The interactive iframe is prelo
 
 | Attribute | Required | Description |
 |-----------|----------|-------------|
-| `class="vignagemaps-embed"` | Yes | Selector the SDK auto-initialises on |
+| `class="awkw-maps-embed"` | Yes | Selector the SDK auto-initialises on |
 | `data-hashid` | Yes | Map identifier — appended to the maps base URL |
 | `width` / `height` | Recommended | Used as fallback dimensions if layout hasn't run |
 | `alt` | Recommended | Becomes the iframe `title` and `aria-label` |
@@ -27,19 +27,15 @@ Static image loads immediately (no JS overhead). The interactive iframe is prelo
 ## Script tag
 
 ```html
-<!-- Production -->
-<script src="https://cdn.vignage.com/sdk/maps.js" defer></script>
-
-<!-- Override the base URL (e.g. local dev) -->
 <script src="/dist/maps.js" data-maps-base="/test" defer></script>
 ```
 
-`data-maps-base` defaults to `https://maps.vignage.com`. The iframe src becomes `{base}/{hashid}?w={width}&h={height}`.
+Not published yet: there is no hosted maps service, so `data-maps-base` must name one. Its built-in default, `https://maps.vignage.com`, does not exist. The iframe src becomes `{base}/{hashid}?w={width}&h={height}`.
 
 ## Events
 
 ```javascript
-document.addEventListener('vignagemaps:statechange', (e) => {
+document.addEventListener('awkw-maps:statechange', (e) => {
     console.log(e.detail.state);       // 'idle' | 'hovering' | 'loading' | 'transitioning' | 'interactive'
     console.log(e.detail.identifier);  // value of data-hashid
     console.log(e.target);             // the <img> element
@@ -53,7 +49,7 @@ The event bubbles, so listening on `document` catches all embeds on the page.
 The SDK auto-initialises on `DOMContentLoaded`. To initialise manually (e.g. after dynamic content is inserted):
 
 ```javascript
-import { init } from '@vignage/maps-sdk/src/index';
+import { init } from '@awkw/maps-embed/src/index';
 
 init(containerElement, 'https://maps.vignage.com');
 ```
@@ -61,7 +57,7 @@ init(containerElement, 'https://maps.vignage.com');
 ## Local dev
 
 ```bash
-# From vignage-sdks/
+# From the repository root
 npm run dev:maps     # watch-build → packages/maps-sdk/dist/maps.js
 
 # Serve the repo root, then open:

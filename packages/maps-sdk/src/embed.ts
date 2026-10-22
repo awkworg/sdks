@@ -1,6 +1,6 @@
-import { EmbedBase } from '@vignage/embed-core';
+import { EmbedBase } from '@awkw/embed-core';
 
-export { EmbedState } from '@vignage/embed-core';
+export { EmbedState } from '@awkw/embed-core';
 
 export class EmbedMap extends EmbedBase {
     private readonly mapsBase: string;
@@ -18,7 +18,7 @@ export class EmbedMap extends EmbedBase {
         return `${this.mapsBase}/${this.identifier}?w=${w}&h=${h}`;
     }
 
-    protected get eventNamespace(): string { return 'vignagemaps'; }
-    protected get ariaLabelNoun(): string { return 'Map'; }
+    protected get eventNamespace(): string { return 'awkw-maps'; }
+    protected ariaLabelNoun(): string { return 'Map'; }
     protected get iframeTitle(): string { return this.img.alt || 'Interactive Map'; }
 }

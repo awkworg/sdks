@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { EmbedIiif } from './embed';
 
-const VIEWER_BASE = 'https://iiif.vignage.com';
+const VIEWER_BASE = 'https://iiif.awkw.org';
 
 function makeImg(overrides: Partial<{ identifier: string; width: number; height: number; alt: string }> = {}): HTMLImageElement {
     const img = document.createElement('img');
@@ -99,12 +99,12 @@ describe('EmbedIiif — state', () => {
 describe('EmbedIiif — DOM wrapping', () => {
     beforeEach(() => { document.body.innerHTML = ''; });
 
-    it('wraps img in .vignage-wrap on hover', () => {
+    it('wraps img in .awkw-embed-wrap on hover', () => {
         const img = makeImg();
         new EmbedIiif(img, VIEWER_BASE);
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
-        const wrapper = document.querySelector('.vignage-wrap');
+        const wrapper = document.querySelector('.awkw-embed-wrap');
         expect(wrapper).not.toBeNull();
         expect(wrapper?.contains(img)).toBe(true);
     });
@@ -114,7 +114,7 @@ describe('EmbedIiif — DOM wrapping', () => {
         new EmbedIiif(img, VIEWER_BASE);
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
-        const wrapper = document.querySelector<HTMLDivElement>('.vignage-wrap');
+        const wrapper = document.querySelector<HTMLDivElement>('.awkw-embed-wrap');
         expect(wrapper?.style.width).toBe('640px');
         expect(wrapper?.style.height).toBe('360px');
     });
@@ -125,7 +125,7 @@ describe('EmbedIiif — DOM wrapping', () => {
         img.dispatchEvent(new MouseEvent('mouseenter'));
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
-        expect(document.querySelectorAll('.vignage-wrap').length).toBe(1);
+        expect(document.querySelectorAll('.awkw-embed-wrap').length).toBe(1);
     });
 });
 
@@ -139,7 +139,7 @@ describe('EmbedIiif — iframe', () => {
 
         const iframe = document.querySelector<HTMLIFrameElement>('iframe');
         expect(iframe).not.toBeNull();
-        expect(iframe?.src).toBe('https://iiif.vignage.com/col/xyz789/embed');
+        expect(iframe?.src).toBe('https://iiif.awkw.org/col/xyz789/embed');
     });
 
     it('sets iframe title for accessibility', () => {
@@ -236,10 +236,10 @@ describe('EmbedIiif — transition', () => {
 describe('EmbedIiif — events', () => {
     beforeEach(() => { document.body.innerHTML = ''; });
 
-    it('dispatches vignaiiif:statechange on hover', () => {
+    it('dispatches awkw-iiif:statechange on hover', () => {
         const img = makeImg();
         const states: string[] = [];
-        img.addEventListener('vignaiiif:statechange', (e) => {
+        img.addEventListener('awkw-iiif:statechange', (e) => {
             states.push((e as CustomEvent<{ state: string }>).detail.state);
         });
 
@@ -249,10 +249,10 @@ describe('EmbedIiif — events', () => {
         expect(states).toContain('hovering');
     });
 
-    it('dispatches vignaiiif:statechange with identifier', () => {
+    it('dispatches awkw-iiif:statechange with identifier', () => {
         const img = makeImg({ identifier: 'col/img42' });
         let detail: Record<string, unknown> = {};
-        img.addEventListener('vignaiiif:statechange', (e) => {
+        img.addEventListener('awkw-iiif:statechange', (e) => {
             detail = (e as CustomEvent).detail;
         });
 
@@ -265,7 +265,7 @@ describe('EmbedIiif — events', () => {
     it('bubbles statechange events', () => {
         const img = makeImg();
         let fired = false;
-        document.addEventListener('vignaiiif:statechange', () => { fired = true; });
+        document.addEventListener('awkw-iiif:statechange', () => { fired = true; });
 
         new EmbedIiif(img, VIEWER_BASE);
         img.dispatchEvent(new MouseEvent('mouseenter'));

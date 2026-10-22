@@ -1,23 +1,15 @@
-import { EmbedIiif } from './embed';
+import { DEFAULT_VIEWER_BASE, init } from './module';
 
-const PRODUCTION_BASE = 'https://iiif.vignage.com';
-
-const _script = document.currentScript as HTMLScriptElement | null;
-const _defaultBase = (_script?.dataset.viewerBase ?? PRODUCTION_BASE).replace(/\/$/, '');
-
-export function init(root: Document = document, viewerBase: string = _defaultBase): void {
-    const images = root.querySelectorAll<HTMLImageElement>('img.vignage-iiif-embed');
-    images.forEach((img) => {
-        if (!img.dataset.identifier) {
-            console.warn('[vignage-iiif] <img> missing data-identifier, skipping:', img);
-            return;
-        }
-        new EmbedIiif(img, viewerBase);
-    });
-}
+/*
+ * The script-tag build (dist/iiif.js): it sets itself up when the page is ready, reading the
+ * viewer's base from its own tag, `<script src=".../iiif.js" data-viewer-base="...">`. A site
+ * that bundles the SDK imports `init` from the package instead (src/module.ts).
+ */
+const script = document.currentScript as HTMLScriptElement | null;
+const viewerBase = script?.dataset.viewerBase ?? DEFAULT_VIEWER_BASE;
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => init());
+    document.addEventListener('DOMContentLoaded', () => init({ viewerBase }));
 } else {
-    init();
+    init({ viewerBase });
 }

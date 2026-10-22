@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { init } from './index';
 
 function makeDoc(...hashids: (string | null)[]): Document {
     const doc = document.implementation.createHTMLDocument();
     hashids.forEach((hashid) => {
         const img = doc.createElement('img');
-        img.className = 'vignagemaps-embed';
+        img.className = 'awkw-maps-embed';
         if (hashid !== null) img.dataset.hashid = hashid;
         doc.body.appendChild(img);
     });
@@ -13,11 +13,11 @@ function makeDoc(...hashids: (string | null)[]): Document {
 }
 
 describe('init', () => {
-    it('initializes all .vignagemaps-embed images with a hashid', () => {
+    it('initializes all .awkw-maps-embed images with a hashid', () => {
         const doc = makeDoc('map1', 'map2', 'map3');
         init(doc, 'https://maps.vignage.com');
 
-        const imgs = doc.querySelectorAll<HTMLImageElement>('img.vignagemaps-embed');
+        const imgs = doc.querySelectorAll<HTMLImageElement>('img.awkw-maps-embed');
         imgs.forEach((img) => {
             expect(img.getAttribute('role')).toBe('button');
         });

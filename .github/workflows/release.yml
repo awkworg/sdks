@@ -1,0 +1,30 @@
+# Publishes @awkw/iiif-embed to npm when a tag `iiif-embed-v<version>` is pushed, after the same
+# checks as CI. It signs in through npm trusted publishing (OIDC), so no npm token is stored, and
+# npm records where the package was built (provenance). See README.md, "Releasing".
+name: Release
+
+on:
+  push:
+    tags: ['iiif-embed-v*']
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm run types
+      - run: npm test
+      - name: The tag matches the package version
+        run: |
+          version=$(node -p "require('./packages/iiif-sdk/package.json').version")
+          [ "$GITHUB_REF_NAME" = "iiif-embed-v$version" ] || { echo "Tag $GITHUB_REF_NAME, package $version" >&2; exit 1; }
+      - run: npm publish -w @awkw/iiif-embed
