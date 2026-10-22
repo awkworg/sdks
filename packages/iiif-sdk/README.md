@@ -4,6 +4,8 @@ Upgrades `<img>` IIIF thumbnails to interactive OpenSeaDragon viewers on user in
 
 Static IIIF image loads immediately (no JS overhead). The OpenSeaDragon iframe (served by `iiif.awkw.org`) is preloaded on hover and revealed on click with a blur/fade transition.
 
+**For images on awkw's image service only.** The viewer is a page that `iiif.awkw.org` serves for each of its images (`/{prefix}/{identifier}/embed`), which other IIIF servers don't have. `viewerBase` is for local development and other awkw environments, not for other servers.
+
 ## Install
 
 ```bash
