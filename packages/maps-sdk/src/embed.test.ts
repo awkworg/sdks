@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { EmbedMap } from './embed';
 
-const MAPS_BASE = 'https://maps.vignage.com';
+const MAPS_BASE = 'https://maps.example.test';
 
 function makeImg(overrides: Partial<{ hashid: string; width: number; height: number; alt: string }> = {}): HTMLImageElement {
     const img = document.createElement('img');
@@ -139,7 +139,7 @@ describe('EmbedMap — iframe', () => {
 
         const iframe = document.querySelector<HTMLIFrameElement>('iframe');
         expect(iframe).not.toBeNull();
-        expect(iframe?.src).toBe('https://maps.vignage.com/xyz789?w=800&h=450');
+        expect(iframe?.src).toBe('https://maps.example.test/xyz789');
     });
 
     it('sets iframe title for accessibility', () => {

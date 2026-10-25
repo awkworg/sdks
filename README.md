@@ -8,7 +8,7 @@ Embed SDKs from [awkw](https://awkw.org), as an npm workspace. MIT licensed.
 |---------|--------|---------|
 | [`embed-core`](packages/embed-core/) | — | Shared abstract base class and transition logic; bundled into each SDK, not published |
 | [`iiif-sdk`](packages/iiif-sdk/) | `@awkw/iiif-embed` on npm | Static image → OpenSeaDragon IIIF viewer |
-| [`maps-sdk`](packages/maps-sdk/) | `maps.js`, not published | Static image → interactive MapLibre map; waits on a maps service |
+| [`maps-sdk`](packages/maps-sdk/) | `@awkw/maps-embed` on npm | Static map image from awkw's maps service → interactive map |
 
 ## Getting started
 
@@ -21,7 +21,7 @@ npm install
 | Command | What it does |
 |---------|-------------|
 | `npm test` | Run all package test suites |
-| `npm run build` | Build `maps.js` and `iiif.js` |
+| `npm run build` | Build both packages: `maps.js` and `iiif.js`, their modules and types |
 | `npm run dev:maps` | Watch-build maps-sdk |
 | `npm run dev:iiif` | Watch-build iiif-sdk |
 | `npm run build:maps` | Build maps-sdk only |
@@ -65,7 +65,7 @@ npx serve .
 
 ## Releasing
 
-`@awkw/iiif-embed` is published by `.github/workflows/release.yml` when a tag `iiif-embed-v<version>` is pushed, after the checks pass. The tag must match the version in `packages/iiif-sdk/package.json`:
+Each package is published by `.github/workflows/release.yml` when its tag is pushed, after the checks pass: `iiif-embed-v<version>` for `@awkw/iiif-embed`, `maps-embed-v<version>` for `@awkw/maps-embed`. The tag must match the version in the package's `package.json`:
 
 ```bash
 npm version patch -w @awkw/iiif-embed --no-git-tag-version   # or minor / major
@@ -73,10 +73,12 @@ git commit -am "Release @awkw/iiif-embed <version>"
 git tag iiif-embed-v<version> && git push && git push --tags
 ```
 
-It signs in to npm through trusted publishing, so no token is stored. npm only lets a package that exists trust a workflow, so the very first release is published by hand from a checkout, signed in to npm as a member of the `awkw` organization:
+The same for `@awkw/maps-embed`, with `-w @awkw/maps-embed` and a `maps-embed-v` tag. Its first release waits for `maps.awkw.org` to be live (AWK-394).
+
+It signs in to npm through trusted publishing, so no token is stored. npm only lets a package that exists trust a workflow, so each package's very first release is published by hand from a checkout, signed in to npm as a member of the `awkw` organization:
 
 ```bash
-npm ci && npm publish -w @awkw/iiif-embed --provenance=false
+npm ci && npm publish -w @awkw/iiif-embed --provenance=false   # or -w @awkw/maps-embed
 ```
 
 Then on npmjs.com, under the package's **Settings → Trusted publishing**, add GitHub Actions with organization `awkworg`, repository `sdks`, and workflow `release.yml`. Later releases need only the tag.

@@ -1,11 +1,12 @@
-# Publishes @awkw/iiif-embed to npm when a tag `iiif-embed-v<version>` is pushed, after the same
-# checks as CI. It signs in through npm trusted publishing (OIDC), so no npm token is stored, and
-# npm records where the package was built (provenance). See README.md, "Releasing".
+# Publishes a package to npm when its tag is pushed, after the same checks as CI:
+# `iiif-embed-v<version>` for @awkw/iiif-embed, `maps-embed-v<version>` for @awkw/maps-embed. It
+# signs in through npm trusted publishing (OIDC), so no npm token is stored, and npm records where
+# the package was built (provenance). See README.md, "Releasing".
 name: Release
 
 on:
   push:
-    tags: ['iiif-embed-v*']
+    tags: ['iiif-embed-v*', 'maps-embed-v*']
 
 permissions:
   contents: read
@@ -23,8 +24,14 @@ jobs:
       - run: npm ci
       - run: npm run types
       - run: npm test
-      - name: The tag matches the package version
+      - name: Which package, and the tag matches its version
+        id: package
         run: |
-          version=$(node -p "require('./packages/iiif-sdk/package.json').version")
-          [ "$GITHUB_REF_NAME" = "iiif-embed-v$version" ] || { echo "Tag $GITHUB_REF_NAME, package $version" >&2; exit 1; }
-      - run: npm publish -w @awkw/iiif-embed
+          case "$GITHUB_REF_NAME" in
+            iiif-embed-v*) name=@awkw/iiif-embed; dir=packages/iiif-sdk ;;
+            maps-embed-v*) name=@awkw/maps-embed; dir=packages/maps-sdk ;;
+          esac
+          version=$(node -p "require('./$dir/package.json').version")
+          [ "$GITHUB_REF_NAME" = "${name#@awkw/}-v$version" ] || { echo "Tag $GITHUB_REF_NAME, package $version" >&2; exit 1; }
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+      - run: npm publish -w ${{ steps.package.outputs.name }}

@@ -1,73 +1,87 @@
 # @awkw/maps-embed
 
-Upgrades `<img>` placeholders to interactive MapLibre GL JS maps on user interaction.
+Turns a static map image from awkw's maps service into an interactive map when it is clicked.
 
-Static image loads immediately (no JS overhead). The interactive iframe is preloaded on hover and revealed on click with a blur/fade transition.
+The page loads a plain `<img>`: no JavaScript for the map until someone wants it, and an image search engines and social cards can read. On hover or focus the SDK starts loading the map's interactive page in a hidden iframe; on click it blurs the image and fades the map in over it.
 
 ## Embed
+
+Use the embed code the maps API answers with when a map is published (`embed` in the response). It looks like this:
 
 ```html
 <img
     class="awkw-maps-embed"
-    data-hashid="abc123"
-    src="https://iiif.awkw.org/col/abc123/full/800,/0/default.jpg"
+    data-hashid="Gv7k2LmQ9x"
+    src="https://maps.awkw.org/Gv7k2LmQ9x/v1/800.webp"
+    srcset="https://maps.awkw.org/Gv7k2LmQ9x/v1/400.webp 400w, …, https://maps.awkw.org/Gv7k2LmQ9x/v1/1200@2x.webp 2400w"
+    sizes="(max-width: 800px) 100vw, 800px"
     width="800"
     height="450"
-    alt="Interactive map of New York City"
+    alt="Giverny"
 >
+<script src="https://cdn.jsdelivr.net/npm/@awkw/maps-embed@0/dist/maps.js" defer></script>
 ```
 
 | Attribute | Required | Description |
 |-----------|----------|-------------|
-| `class="awkw-maps-embed"` | Yes | Selector the SDK auto-initialises on |
-| `data-hashid` | Yes | Map identifier — appended to the maps base URL |
-| `width` / `height` | Recommended | Used as fallback dimensions if layout hasn't run |
-| `alt` | Recommended | Becomes the iframe `title` and `aria-label` |
+| `class="awkw-maps-embed"` | Yes | What the SDK looks for |
+| `data-hashid` | Yes | The map; its interactive page is `{maps service}/{hashid}` |
+| `src`, `srcset` | Yes | The map's static images, which the service draws at 400, 800 and 1200 wide, and the two larger at 2× |
+| `width` / `height` | Recommended | Hold the image's space before it loads |
+| `alt` | Recommended | The map's title; also the iframe's `title` |
 
-## Script tag
+A new version of a map has new image URLs, so after an update, use the new embed code.
+
+## Which maps service
+
+Maps open on `https://maps.awkw.org`. To use another, such as `https://maps.vignage.test` locally, the site names it on the script tag:
 
 ```html
-<script src="/dist/maps.js" data-maps-base="/test" defer></script>
+<script src=".../maps.js" data-maps-base="https://maps.example.org" defer></script>
 ```
 
-Not published yet: there is no hosted maps service, so `data-maps-base` must name one. Its built-in default, `https://maps.vignage.com`, does not exist. The iframe src becomes `{base}/{hashid}?w={width}&h={height}`.
+Only the site names it, never an image's own `src`, so whoever can put an image on a page can't choose what it frames.
+
+## With a bundler
+
+```bash
+npm install @awkw/maps-embed
+```
+
+```javascript
+import { init } from '@awkw/maps-embed';
+
+init();                                   // every img.awkw-maps-embed on the page
+init({ root: container });                // only those inside `container`
+init({ mapsBase: 'https://maps.example.org' });   // another maps service
+```
+
+`init` sets each image up once, so it is safe to call again after adding images.
 
 ## Events
 
 ```javascript
 document.addEventListener('awkw-maps:statechange', (e) => {
     console.log(e.detail.state);       // 'idle' | 'hovering' | 'loading' | 'transitioning' | 'interactive'
-    console.log(e.detail.identifier);  // value of data-hashid
-    console.log(e.target);             // the <img> element
+    console.log(e.detail.identifier);  // the hashid
+    console.log(e.target);             // the <img>
 });
 ```
 
-The event bubbles, so listening on `document` catches all embeds on the page.
-
-## Programmatic init
-
-The SDK auto-initialises on `DOMContentLoaded`. To initialise manually (e.g. after dynamic content is inserted):
-
-```javascript
-import { init } from '@awkw/maps-embed/src/index';
-
-init(containerElement, 'https://maps.vignage.com');
-```
+The event bubbles, so listening on `document` catches every map on the page.
 
 ## Local dev
+
+The test harness, `test/index.html`, shows the example maps from a local maps service at `https://maps.vignage.test` (`npm run fixtures` in [awkworg/maps](https://github.com/awkworg/maps) loads them):
 
 ```bash
 # From the repository root
 npm run dev:maps     # watch-build → packages/maps-sdk/dist/maps.js
-
-# Serve the repo root, then open:
-# http://localhost:PORT/packages/maps-sdk/test/
+npx serve .          # then open http://localhost:3000/packages/maps-sdk/test/
 ```
-
-The test harness at `test/index.html` uses `data-maps-base="/test"` which routes iframes to `test/map.html` — a minimal MapLibre page pointing at `tiles.vignage.test`.
 
 ## Build
 
 ```bash
-npm run build:maps   # → packages/maps-sdk/dist/maps.js (~3.5KB minified IIFE)
+npm run build:maps   # dist/maps.js (the script tag, ~4 KB minified), dist/index.js and its types
 ```
