@@ -18,7 +18,7 @@
         .subtitle { color: #64748b; font-size: 0.875rem; margin: 0 0 32px; }
         code { background: #e2e8f0; padding: 1px 5px; border-radius: 3px; font-size: 0.85em; }
 
-        .embed-row { margin-bottom: 32px; }
+        .embed-row { position: relative; margin-bottom: 32px; }
         .embed-label {
             font-size: 0.75rem;
             font-weight: 600;
@@ -28,13 +28,13 @@
             margin-bottom: 8px;
         }
 
-        /* Wrapper the SDK creates — we style the badge relative to it */
+        /* The wrapper the SDK creates around the image and its iframe */
         .awkw-embed-wrap { border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 
-        /* State badge injected by the debug script below */
+        /* State badge the debug script below puts on each row, over the map */
         .awkw-badge {
             position: absolute;
-            top: 10px;
+            top: 28px;
             left: 10px;
             z-index: 10;
             font-size: 11px;
@@ -52,6 +52,7 @@
         .awkw-badge[data-state="interactive"]  { background: #22c55e; color: #fff; }
 
         .reset-btn {
+            display: block;
             margin-top: 8px;
             font-size: 0.75rem;
             padding: 4px 10px;
@@ -62,64 +63,85 @@
             color: #475569;
         }
         .reset-btn:hover { background: #f8fafc; border-color: #94a3b8; }
+        .note { color: #64748b; font-size: 0.8rem; margin: 0 0 8px; }
     </style>
 
     <!--
-        data-maps-base is root-relative — works at any port.
-        Not published yet: there is no hosted maps service.
+        No data-maps-base: each map opens on the service its image came from, as the embed code
+        the maps API gives does. The maps are the local examples (npm run fixtures in awkworg/maps).
     -->
-    <script src="/dist/maps.js" data-maps-base="/test" defer></script>
+    <script src="../dist/maps.js" defer></script>
 </head>
 <body>
     <h1>awkw Maps SDK</h1>
     <p class="subtitle">
-        <strong>Hover</strong> to preload the iframe &nbsp;·&nbsp;
-        <strong>Click</strong> to trigger the transition &nbsp;·&nbsp;
-        Run: <code>npm run dev</code> + <code>npx serve . -p PORT</code> from <code>maps-sdk/</code>
+        <strong>Hover</strong> to preload the map &nbsp;·&nbsp;
+        <strong>Click</strong> to swap the static image for it &nbsp;·&nbsp;
+        Needs <code>maps.vignage.test</code> running, then <code>npm run dev:maps</code> and
+        <code>npx serve .</code> from the repository root
     </p>
 
     <div class="embed-row">
-        <div class="embed-label">800 × 450 — wide (New York City, z10)</div>
+        <div class="embed-label">One place, 16:9 (Single0001)</div>
         <img
             class="awkw-maps-embed"
-            data-hashid="map.html?lat=40.712&lng=-74.006&zoom=10&"
-            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='450'%3E%3Crect width='800' height='450' fill='%23e2e8f0'/%3E%3Crect x='0' y='180' width='800' height='90' fill='%23bfdbfe' opacity='.6'/%3E%3Cline x1='0' y1='150' x2='800' y2='150' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='0' y1='300' x2='800' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='200' y1='0' x2='200' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='400' y1='0' x2='400' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='600' y1='0' x2='600' y2='450' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='400' cy='225' r='8' fill='%23ef4444'/%3E%3Ctext x='400' y='260' font-family='system-ui' font-size='14' fill='%2364748b' text-anchor='middle'%3EHover then click to interact%3C/text%3E%3C/svg%3E"
+            data-hashid="Single0001"
+            src="https://maps.vignage.test/Single0001/v1/800.webp"
+            srcset="https://maps.vignage.test/Single0001/v1/400.webp 400w, https://maps.vignage.test/Single0001/v1/800.webp 800w, https://maps.vignage.test/Single0001/v1/1200.webp 1200w, https://maps.vignage.test/Single0001/v1/800@2x.webp 1600w, https://maps.vignage.test/Single0001/v1/1200@2x.webp 2400w"
+            sizes="(max-width: 800px) 100vw, 800px"
             width="800"
             height="450"
-            alt="Interactive map of New York City"
+            alt="Giverny"
             style="display:block;max-width:100%;height:auto;border-radius:8px;"
         />
         <button class="reset-btn" data-reset>↺ Reset</button>
     </div>
 
     <div class="embed-row">
-        <div class="embed-label">400 × 300 — narrow (Portland, z12)</div>
+        <div class="embed-label">A place with an area, 4:3 (AreaMap001)</div>
         <img
             class="awkw-maps-embed"
-            data-hashid="map.html?lat=45.523&lng=-122.676&zoom=12&"
-            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect width='400' height='300' fill='%23e2e8f0'/%3E%3Crect x='0' y='100' width='400' height='100' fill='%23bfdbfe' opacity='.6'/%3E%3Cline x1='0' y1='100' x2='400' y2='100' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='0' y1='200' x2='400' y2='200' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='133' y1='0' x2='133' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Cline x1='266' y1='0' x2='266' y2='300' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='200' cy='150' r='6' fill='%23ef4444'/%3E%3Ctext x='200' y='180' font-family='system-ui' font-size='12' fill='%2364748b' text-anchor='middle'%3EClick to interact%3C/text%3E%3C/svg%3E"
-            width="400"
-            height="300"
-            alt="Interactive map of Portland, OR"
+            data-hashid="AreaMap001"
+            src="https://maps.vignage.test/AreaMap001/v1/800.webp"
+            srcset="https://maps.vignage.test/AreaMap001/v1/400.webp 400w, https://maps.vignage.test/AreaMap001/v1/800.webp 800w, https://maps.vignage.test/AreaMap001/v1/1200.webp 1200w, https://maps.vignage.test/AreaMap001/v1/800@2x.webp 1600w, https://maps.vignage.test/AreaMap001/v1/1200@2x.webp 2400w"
+            sizes="(max-width: 800px) 100vw, 800px"
+            width="800"
+            height="600"
+            alt="Art Institute of Chicago"
             style="display:block;max-width:100%;height:auto;border-radius:8px;"
+        />
+        <button class="reset-btn" data-reset>↺ Reset</button>
+    </div>
+
+    <div class="embed-row">
+        <div class="embed-label">Clustered markers, shown at 400 wide (Cluster001)</div>
+        <p class="note">Smaller than the image was drawn: the interactive map should open on the same view, only smaller.</p>
+        <img
+            class="awkw-maps-embed"
+            data-hashid="Cluster001"
+            src="https://maps.vignage.test/Cluster001/v1/800.webp"
+            srcset="https://maps.vignage.test/Cluster001/v1/400.webp 400w, https://maps.vignage.test/Cluster001/v1/800.webp 800w, https://maps.vignage.test/Cluster001/v1/1200.webp 1200w, https://maps.vignage.test/Cluster001/v1/800@2x.webp 1600w, https://maps.vignage.test/Cluster001/v1/1200@2x.webp 2400w"
+            sizes="(max-width: 800px) 100vw, 800px"
+            width="800"
+            height="450"
+            alt="Chicago gallery guide"
+            style="display:block;width:400px;max-width:100%;height:auto;border-radius:8px;"
         />
         <button class="reset-btn" data-reset>↺ Reset</button>
     </div>
 
     <script>
-        // Debug overlay — attach a state badge to every embed, updated via SDK events
+        // Debug overlay: a state badge on every embed's row, updated via SDK events. On the row,
+        // not the SDK's wrapper, since the first event comes before the wrapper exists.
         document.addEventListener('awkw-maps:statechange', (e) => {
-            const img = e.target;
-            const wrap = img.closest('.awkw-embed-wrap') ?? img.parentElement;
-            if (!wrap) return;
+            const row = e.target.closest('.embed-row');
+            if (!row) return;
 
-            let badge = wrap.querySelector('.awkw-badge');
+            let badge = row.querySelector('.awkw-badge');
             if (!badge) {
                 badge = document.createElement('div');
                 badge.className = 'awkw-badge';
-                // Ensure wrap is positioned (SDK sets this, but badge is appended before wrap exists on first event)
-                if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
-                wrap.appendChild(badge);
+                row.appendChild(badge);
             }
             badge.textContent = e.detail.state;
             badge.dataset.state = e.detail.state;

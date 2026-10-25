@@ -14,8 +14,12 @@ export class EmbedMap extends EmbedBase {
         return img.dataset.hashid ?? '';
     }
 
-    protected buildIframeUrl(w: number, h: number): string {
-        return `${this.mapsBase}/${this.identifier}?w=${w}&h=${h}`;
+    /*
+     * The map's own page, which fills whatever frame it is in. No size in the URL: each size
+     * would be another copy at the service's edge cache, and another to purge.
+     */
+    protected buildIframeUrl(_w: number, _h: number): string {
+        return `${this.mapsBase}/${encodeURIComponent(this.identifier)}`;
     }
 
     protected get eventNamespace(): string { return 'awkw-maps'; }

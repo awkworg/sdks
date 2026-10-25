@@ -1,24 +1,17 @@
-import { EmbedMap } from './embed';
+import { init } from './module';
 
-const PRODUCTION_BASE = 'https://maps.vignage.com';
-
-// Capture currentScript at evaluation time — only valid during initial script execution
-const _script = document.currentScript as HTMLScriptElement | null;
-const _defaultBase = (_script?.dataset.mapsBase ?? PRODUCTION_BASE).replace(/\/$/, '');
-
-export function init(root: Document = document, mapsBase: string = _defaultBase): void {
-    const images = root.querySelectorAll<HTMLImageElement>('img.awkw-maps-embed');
-    images.forEach((img) => {
-        if (!img.dataset.hashid) {
-            console.warn('[awkw-maps] <img> missing data-hashid, skipping:', img);
-            return;
-        }
-        new EmbedMap(img, mapsBase);
-    });
-}
+/*
+ * The script-tag build (dist/maps.js): it sets itself up when the page is ready. A tag can name
+ * the maps service, `<script src=".../maps.js" data-maps-base="...">`; without it, each map uses
+ * the service its image came from. A site that bundles the SDK imports `init` from the package
+ * instead (src/module.ts).
+ */
+const script = document.currentScript as HTMLScriptElement | null;
+const mapsBase = script?.dataset.mapsBase;
+const options = mapsBase ? { mapsBase } : {};
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => init());
+    document.addEventListener('DOMContentLoaded', () => init(options));
 } else {
-    init();
+    init(options);
 }
