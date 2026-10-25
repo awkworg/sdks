@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 /*
- * The script tag build (src/index.ts) reads the maps service from its own <script> tag, if it
- * names one, and sets itself up once the page is ready. Each test loads it afresh, as a page would.
+ * The script tag build (src/index.ts) reads the maps service from its own <script> tag and sets
+ * itself up once the page is ready. Each test loads it afresh, as a page would.
  */
 const HASHID = 'Gv7k2LmQ9x';
 
@@ -44,7 +44,7 @@ describe('the script tag build', () => {
         expect(iframeSrc()).toBe(`https://maps.example.test/${HASHID}`);
     });
 
-    it('waits for a loading page, then opens each map on the service its image came from', async () => {
+    it('waits for a loading page, then sets it up on maps.awkw.org', async () => {
         as('loading');
         await import('./index');
         const img = image();
@@ -55,6 +55,6 @@ describe('the script tag build', () => {
         document.dispatchEvent(new Event('DOMContentLoaded'));
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
-        expect(iframeSrc()).toBe(`https://maps.vignage.test/${HASHID}`);
+        expect(iframeSrc()).toBe(`https://maps.awkw.org/${HASHID}`);
     });
 });

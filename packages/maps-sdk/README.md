@@ -34,11 +34,13 @@ A new version of a map has new image URLs, so after an update, use the new embed
 
 ## Which maps service
 
-Each map opens on the service its own image came from, so the embed code works as pasted, whichever service published it (`maps.awkw.org`, or `maps.vignage.test` locally). An image that isn't one of the service's own, a copy on another host, opens on `https://maps.awkw.org`. To name the service for every map on the page instead:
+Maps open on `https://maps.awkw.org`. To use another, such as `https://maps.vignage.test` locally, the site names it on the script tag:
 
 ```html
 <script src=".../maps.js" data-maps-base="https://maps.example.org" defer></script>
 ```
+
+Only the site names it, never an image's own `src`, so whoever can put an image on a page can't choose what it frames.
 
 ## With a bundler
 
@@ -51,7 +53,7 @@ import { init } from '@awkw/maps-embed';
 
 init();                                   // every img.awkw-maps-embed on the page
 init({ root: container });                // only those inside `container`
-init({ mapsBase: 'https://maps.example.org' });
+init({ mapsBase: 'https://maps.example.org' });   // another maps service
 ```
 
 `init` sets each image up once, so it is safe to call again after adding images.

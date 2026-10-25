@@ -67,10 +67,10 @@
     </style>
 
     <!--
-        No data-maps-base: each map opens on the service its image came from, as the embed code
-        the maps API gives does. The maps are the local examples (npm run fixtures in awkworg/maps).
+        The local maps service, named as a site names one. The maps are its examples, in their
+        embed code as the maps API gives it (npm run fixtures in awkworg/maps loads them).
     -->
-    <script src="../dist/maps.js" defer></script>
+    <script src="../dist/maps.js" data-maps-base="https://maps.vignage.test" defer></script>
 </head>
 <body>
     <h1>awkw Maps SDK</h1>
