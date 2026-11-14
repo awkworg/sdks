@@ -77,7 +77,7 @@ Your other attributes, such as your own classes, `srcset` and `sizes`, stay as t
 ## What visitors see
 
 1. The page shows your image. Nothing else has loaded yet.
-2. When the pointer moves over the image, or keyboard focus reaches it, the viewer starts loading out of sight, behind the image.
+2. When the pointer moves over the image, or keyboard focus reaches it, the viewer starts loading out of sight.
 3. When the visitor clicks the image, or presses Enter or Space while it has focus, the image blurs while the viewer finishes loading. Then the viewer fades in where the image was.
 4. In the viewer, visitors drag to move around and scroll or pinch to zoom. Buttons in the top left corner zoom in, zoom out and reset the view.
 
@@ -112,7 +112,7 @@ document.addEventListener('awkw-iiif:statechange', (event) => {
 | State | When |
 |-------|------|
 | `idle` | Where every embed starts. No event is sent for it. |
-| `hovering` | The pointer or keyboard focus reached the image, or it was clicked first. The viewer has started loading out of sight. |
+| `hovering` | The pointer or keyboard focus reached the image, or it was clicked first. Right after this event, the embed wraps the image and starts loading the viewer out of sight. |
 | `loading` | The image was clicked or pressed. It's blurred while the viewer finishes loading. |
 | `transitioning` | The viewer has loaded and is fading in. |
 | `interactive` | The viewer is open and the image is hidden. |
@@ -154,7 +154,7 @@ A few things the embed sets on its elements directly, in their `style` attribute
 
 To keep an embed on a line of its own, put the image in a block of its own, such as a `<figure>` or a `<p>`.
 
-To style an embed by its state, use the event. This marks the wrapper with the current state:
+To style an embed by its state, use the event. This marks the wrapper with the current state. The wrapper doesn't exist yet when `hovering` is sent, so it's marked from `loading` on:
 
 ```js
 document.addEventListener('awkw-iiif:statechange', (event) => {
@@ -182,6 +182,8 @@ img.className = 'awkw-iiif-embed';
 img.dataset.identifier = 'your-studio/def456uvw';
 img.src = 'https://iiif.awkw.org/your-studio/def456uvw/full/800,/0/default.jpg';
 img.alt = 'Bedroom, 2023';
+img.width = 800;
+img.height = 600;
 gallery.append(img);
 
 init({ root: gallery });
