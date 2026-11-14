@@ -47,7 +47,7 @@ The script tag build sets itself up when the page is ready.
 | `class="awkw-iiif-embed"` | Yes | Selector the SDK auto-initialises on |
 | `data-identifier` | Yes | `{prefix}/{identifier}` path — appended to the viewer base URL |
 | `width` / `height` | Recommended | Used as fallback dimensions if layout hasn't run |
-| `alt` | Recommended | Becomes the iframe `title` and `aria-label` |
+| `alt` | Recommended | Becomes the image's `aria-label` (`{alt} — click to interact`) and the iframe's `title` |
 
 `data-identifier` matches the IIIF route structure at `iiif.awkw.org/{prefix}/{identifier}/embed`. For example, `data-identifier="col/abc123"` loads `https://iiif.awkw.org/col/abc123/embed`.
 
