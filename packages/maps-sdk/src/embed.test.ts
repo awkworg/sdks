@@ -281,3 +281,31 @@ describe('EmbedMap — events', () => {
         expect(fired).toBe(true);
     });
 });
+
+describe('EmbedMap — closing and taking away, from the shared base', () => {
+    beforeEach(() => { document.body.innerHTML = ''; });
+
+    it('opens with focus in the map, closes back to the image, and takes itself away', async () => {
+        const img = makeImg();
+        const embed = new EmbedMap(img, MAPS_BASE);
+
+        img.click();
+        const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
+        iframe.dispatchEvent(new Event('load'));
+        await settle();
+        await new Promise((r) => requestAnimationFrame(r));
+        iframe.dispatchEvent(new Event('transitionend'));
+
+        expect(embed.currentState).toBe('interactive');
+        expect(document.activeElement).toBe(iframe);
+
+        document.querySelector<HTMLButtonElement>('.awkw-embed-close')!.click();
+        expect(embed.currentState).toBe('idle');
+        expect(document.activeElement).toBe(img);
+
+        embed.destroy();
+        expect(embed.destroyed).toBe(true);
+        expect(document.querySelector('.awkw-embed-wrap')).toBeNull();
+        expect(img.parentElement).toBe(document.body);
+    });
+});

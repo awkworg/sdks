@@ -18,14 +18,16 @@ const embeds = new WeakMap<HTMLImageElement, EmbedIiif>();
  * `destroy()` takes the embed away. Nothing for an image init() hasn't reached.
  */
 export function embedFor(img: HTMLImageElement): EmbedIiif | null {
-    return embeds.get(img) ?? null;
+    const embed = embeds.get(img);
+
+    /* One taken away, by destroy() here or its own, is no embed. */
+    return embed && !embed.destroyed ? embed : null;
 }
 
-/** Takes an image's embed away, so init() would set it up afresh. */
+/** Takes an image's embed away, as its own destroy() does, so init() would set it up afresh. */
 export function destroy(img: HTMLImageElement): void {
     embeds.get(img)?.destroy();
     embeds.delete(img);
-    delete img.dataset.awkwIiif;
 }
 
 /**

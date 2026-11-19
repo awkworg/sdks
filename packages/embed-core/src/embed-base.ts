@@ -8,6 +8,10 @@ export type EmbedState =
     | 'interactive'
     | 'unavailable';
 
+/* The notice on a picture that can't be shown: nothing, until it says so across the image's foot. */
+const NOTICE_QUIET = 'position:absolute;inset:auto 0 0 0;margin:0;';
+const NOTICE_SAID = `${NOTICE_QUIET}padding:8px 12px;background:rgb(0 0 0/0.6);color:#fff;font:14px/1.4 sans-serif;`;
+
 export abstract class EmbedBase {
     // --- Abstract contract ---
     protected abstract readIdentifier(img: HTMLImageElement): string;
@@ -47,6 +51,9 @@ export abstract class EmbedBase {
     };
 
     get currentState(): EmbedState { return this._state; }
+
+    /** Whether destroy() has taken the embed away. */
+    get destroyed(): boolean { return this.listening.signal.aborted; }
 
     constructor(img: HTMLImageElement) {
         this.img = img;
@@ -158,6 +165,11 @@ export abstract class EmbedBase {
         this.wrapImg();
         this.insertIframe();
         this.checked ??= this.available().catch(() => true);
+
+        if (this.notice) {
+            this.notice.textContent = '';
+            this.notice.style.cssText = NOTICE_QUIET;
+        }
     }
 
     private wrapImg(): void {
@@ -207,10 +219,18 @@ export abstract class EmbedBase {
         closer.style.cssText = 'position:absolute;top:8px;right:8px;z-index:1;width:32px;height:32px;border:0;border-radius:16px;background:rgb(0 0 0/0.6);color:#fff;font:20px/32px sans-serif;cursor:pointer;';
         closer.addEventListener('click', () => this.close(), { signal: this.listening.signal });
 
+        /* In the page from the start, empty and taking no room, and filled only when there is something to say: a status region a screen reader already knows announces the change. */
+        const notice = document.createElement('p');
+        notice.className = 'awkw-embed-unavailable';
+        notice.setAttribute('role', 'status');
+        notice.style.cssText = NOTICE_QUIET;
+
         this.wrapper.appendChild(iframe);
         this.wrapper.appendChild(closer);
+        this.wrapper.appendChild(notice);
         this.iframe = iframe;
         this.closer = closer;
+        this.notice = notice;
     }
 
     private activate(): void {
@@ -253,15 +273,12 @@ export abstract class EmbedBase {
     /* Nothing to show: the image stays, unblurred, saying so, rather than opening an empty viewer. */
     private unavailable(): void {
         unblurImage(this.img);
+        /* Asked afresh on the next click: it may have been made public since. */
+        this.checked = null;
 
-        if (this.wrapper && !this.notice) {
-            const notice = document.createElement('p');
-            notice.className = 'awkw-embed-unavailable';
-            notice.setAttribute('role', 'status');
-            notice.textContent = 'This image can’t be opened.';
-            notice.style.cssText = 'position:absolute;inset:auto 0 0 0;margin:0;padding:8px 12px;background:rgb(0 0 0/0.6);color:#fff;font:14px/1.4 sans-serif;';
-            this.wrapper.appendChild(notice);
-            this.notice = notice;
+        if (this.notice) {
+            this.notice.style.cssText = NOTICE_SAID;
+            this.notice.textContent = 'This image can’t be opened.';
         }
 
         this.img.setAttribute('aria-label', `${this.img.alt || this.ariaLabelNoun()} — can’t be opened`);

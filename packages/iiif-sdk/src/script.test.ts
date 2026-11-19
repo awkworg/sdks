@@ -25,10 +25,13 @@ describe('the script tag build', () => {
     beforeEach(() => {
         document.body.innerHTML = '';
         vi.resetModules();
+        /* No test reaches the real image service. */
+        vi.stubGlobal('fetch', vi.fn(async () => new Response('{}', { status: 200 })));
     });
     afterEach(() => {
         Reflect.deleteProperty(document, 'currentScript');
         Reflect.deleteProperty(document, 'readyState');
+        vi.unstubAllGlobals();
     });
 
     it('sets up a ready page at once, on the base its tag names', async () => {

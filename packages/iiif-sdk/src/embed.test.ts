@@ -393,6 +393,34 @@ describe('EmbedIiif — a picture it can’t show', () => {
         expect(img.getAttribute('aria-label')).toBe('A study — can’t be opened');
     });
 
+    it('has its notice in the page from the start, empty, so a screen reader hears it fill', () => {
+        const img = makeImg();
+        new EmbedIiif(img, VIEWER_BASE);
+        img.dispatchEvent(new MouseEvent('mouseenter'));
+
+        const notice = document.querySelector('.awkw-embed-unavailable')!;
+
+        expect(notice.getAttribute('role')).toBe('status');
+        expect(notice.textContent).toBe('');
+    });
+
+    it('asks again on the next click, and opens a picture made public since', async () => {
+        const answers = [403, 200];
+        const fetched = vi.fn(async () => new Response('{}', { status: answers.shift()! }));
+        vi.stubGlobal('fetch', fetched);
+        const img = makeImg();
+        const embed = new EmbedIiif(img, VIEWER_BASE);
+
+        img.click();
+        document.querySelector('iframe')!.dispatchEvent(new Event('load'));
+        await settle();
+        expect(embed.currentState).toBe('unavailable');
+
+        await opened(embed, img);
+        expect(fetched).toHaveBeenCalledTimes(2);
+        expect(document.querySelector('.awkw-embed-unavailable')!.textContent).toBe('');
+    });
+
     it('opens it anyway when the service can’t be asked', async () => {
         vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('offline'); }));
         const img = makeImg();

@@ -26,12 +26,21 @@ export class EmbedIiif extends EmbedBase {
      */
     protected async available(): Promise<boolean> {
         try {
-            const answer = await fetch(`${this.viewerBase}/${this.identifier}/info.json`, { method: 'GET' });
+            /* A slow answer counts as one it couldn't get, so the viewer isn't held for it. */
+            const answer = await fetch(`${this.viewerBase}/${this.identifier}/info.json`, {
+                signal: AbortSignal.timeout(3000),
+            });
 
             return ![401, 403, 404, 410].includes(answer.status);
         } catch {
             return true;
         }
+    }
+
+    /** Takes the embed away, and the mark init() set, so init() would set it up afresh. */
+    destroy(): void {
+        super.destroy();
+        delete this.img.dataset.awkwIiif;
     }
 
     protected get eventNamespace(): string { return 'awkw-iiif'; }
