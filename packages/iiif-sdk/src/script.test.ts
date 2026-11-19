@@ -54,4 +54,29 @@ describe('the script tag build', () => {
 
         expect(iframeSrc()).toBe('https://iiif.awkw.org/col/xyz789/embed');
     });
+
+    it('gives the page AwkwIiif, to set up pictures added later on its tag’s base, and reach their embeds', async () => {
+        as('complete', 'https://iiif.example.test');
+        await import('./index');
+        const awkw = (window as unknown as {
+            AwkwIiif: {
+                init(): void;
+                embedFor(img: HTMLImageElement): { destroy(): void } | null;
+                destroy(img: HTMLImageElement): void;
+            };
+        }).AwkwIiif;
+        const later = image();
+
+        expect(awkw.embedFor(later)).toBeNull();
+        awkw.init();
+        later.dispatchEvent(new MouseEvent('mouseenter'));
+
+        expect(iframeSrc()).toBe('https://iiif.example.test/col/xyz789/embed');
+        expect(awkw.embedFor(later)).not.toBeNull();
+
+        awkw.destroy(later);
+        expect(awkw.embedFor(later)).toBeNull();
+        expect(document.querySelector('iframe')).toBeNull();
+        expect(later.dataset.awkwIiif).toBeUndefined();
+    });
 });
