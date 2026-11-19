@@ -564,14 +564,21 @@ describe('EmbedIiif — closed after the fade began, and opened again at once', 
 
         expect(embed.currentState).toBe('transitioning');
         expect(states).not.toContain('interactive');
+
+        /* And the new fade still finishes, once, by its own fallback. */
+        await vi.advanceTimersByTimeAsync(500);
+        expect(states.filter((state) => state === 'interactive')).toHaveLength(1);
+        expect(embed.currentState).toBe('interactive');
     });
 
     it('leaves the new fade to its own end: the first fade’s fallback finishes nothing', async () => {
         const { embed, states } = await fading();
 
         /*
-         * A frame runs 16 ms after it is asked for, and a fallback 400 ms after its frame: the
-         * first fade's is due 396 ms after the reopening, the new one's 416 ms after. Between them.
+         * The fake clock runs a frame on its next 16 ms from when it began, and a fallback is due
+         * 400 ms after its frame. The first fade's frame ran at 16, so its fallback is due at 416;
+         * reopened at 20, the new fade's frame runs at 32, its fallback due at 432. So 405 ms after
+         * the reopening, at 425, is between them.
          */
         await vi.advanceTimersByTimeAsync(405);
         expect(embed.currentState).toBe('transitioning');
