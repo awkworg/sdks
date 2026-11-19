@@ -33,7 +33,7 @@ Both SDKs share the same interaction pattern via `embed-core`:
 
 1. The page loads with a static `<img>` — fast, no JS overhead.
 2. On **hover/focus**, the SDK wraps the image in a positioned container and inserts a hidden `<iframe>` to start preloading.
-3. On **click/Enter/Space**, the image blurs and scales while the iframe loads; once ready, the iframe fades in and the image is removed.
+3. On **click/Enter/Space**, the image blurs and scales while the iframe loads; once ready, the iframe fades in and the image is hidden.
 
 ```
 idle → hovering → loading → transitioning → interactive
