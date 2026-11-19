@@ -413,13 +413,11 @@ describe('EmbedIiif — a picture it can’t show', () => {
         const embed = new EmbedIiif(img, VIEWER_BASE);
 
         img.click();
-        document.querySelector('iframe')!.dispatchEvent(new Event('load'));
+        const first = document.querySelector('iframe')!;
+        first.dispatchEvent(new Event('load'));
         await settle();
         expect(embed.currentState).toBe('unavailable');
-
-        const first = document.querySelector('iframe');
-
-        expect(first).toBeNull();
+        expect(first.isConnected).toBe(false);
 
         const second = await opened(embed, img);
         expect(fetched).toHaveBeenCalledTimes(2);
@@ -483,10 +481,51 @@ describe('EmbedIiif — closed or taken away mid-fade', () => {
             iframe.dispatchEvent(new Event('transitionend'));
 
             expect(embed.currentState).toBe('idle');
-            expect(iframe.style.opacity).not.toBe('1');
             expect(img.style.display).toBe('');
+            /* Closed, the viewer is hidden again; taken away, it is gone. */
+            if (how === 'closed') {
+                expect(iframe.style.opacity).toBe('0');
+            } else {
+                expect(iframe.isConnected).toBe(false);
+            }
         });
     }
+});
+
+describe('EmbedIiif — closed after the fade began', () => {
+    beforeEach(() => { document.body.innerHTML = ''; });
+    afterEach(() => { vi.useRealTimers(); });
+
+    it('stops the fade under way, so neither its transitionend nor its fallback finishes a later one', async () => {
+        vi.useFakeTimers();
+        const img = makeImg();
+        const states: string[] = [];
+        img.addEventListener('awkw-iiif:statechange', (e) => states.push((e as CustomEvent).detail.state));
+        const embed = new EmbedIiif(img, VIEWER_BASE);
+
+        img.click();
+        const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
+        iframe.dispatchEvent(new Event('load'));
+        /* The ask, then the fade's frame: the viewer is fading in, its listener and timer set. */
+        await vi.advanceTimersByTimeAsync(20);
+        expect(iframe.style.opacity).toBe('1');
+
+        embed.close();
+        iframe.dispatchEvent(new Event('transitionend'));
+        await vi.advanceTimersByTimeAsync(500);
+        expect(embed.currentState).toBe('idle');
+        expect(img.style.display).toBe('');
+
+        /* Opened again, the new fade finishes once, by its own end. */
+        states.length = 0;
+        img.click();
+        await vi.advanceTimersByTimeAsync(20);
+        iframe.dispatchEvent(new Event('transitionend'));
+        await vi.advanceTimersByTimeAsync(500);
+
+        expect(states.filter((state) => state === 'interactive')).toHaveLength(1);
+        expect(embed.currentState).toBe('interactive');
+    });
 });
 
 describe('EmbedIiif — a slow image service', () => {

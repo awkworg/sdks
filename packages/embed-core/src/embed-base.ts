@@ -40,6 +40,8 @@ export abstract class EmbedBase {
     private notice: HTMLParagraphElement | null = null;
     private iframeLoaded = false;
     private checked: Promise<boolean> | null = null;
+    /** The fade under way, to stop if the viewer is closed or taken away first. */
+    private stopReveal: (() => void) | null = null;
     /** Every listener the embed adds, so destroy() takes them all away. */
     private readonly listening = new AbortController();
     /** What the embed changed on the image, put back by destroy(). */
@@ -87,6 +89,9 @@ export abstract class EmbedBase {
     close(): void {
         if (this._state === 'idle' || this._state === 'hovering' || this._state === 'unavailable') return;
 
+        this.stopReveal?.();
+        this.stopReveal = null;
+
         if (this.iframe) {
             this.iframe.style.transition = '';
             this.iframe.style.opacity = '0';
@@ -108,6 +113,8 @@ export abstract class EmbedBase {
      */
     destroy(): void {
         this.listening.abort();
+        this.stopReveal?.();
+        this.stopReveal = null;
 
         if (this.wrapper) {
             this.wrapper.parentNode?.insertBefore(this.img, this.wrapper);
@@ -248,14 +255,15 @@ export abstract class EmbedBase {
             if (!this.iframe || this._state !== 'loading') return;
             this.setState('transitioning');
             this.iframe.style.pointerEvents = 'auto';
-            revealIframe(this.iframe, () => {
+            this.stopReveal = revealIframe(this.iframe, () => {
+                this.stopReveal = null;
                 this.img.style.display = 'none';
                 if (this.closer) this.closer.hidden = false;
                 this.setState('interactive');
                 this.img.removeAttribute('aria-label');
                 /* The visitor's next keys go to the viewer they opened. */
                 this.iframe?.focus();
-            }, () => this._state === 'transitioning' && !this.destroyed);
+            });
         };
 
         const loaded = () => {

@@ -22,36 +22,45 @@ export function unblurImage(img: HTMLImageElement): void {
 }
 
 /**
- * Fades the viewer in, then calls onComplete; `wanted` is asked before each step, so a
- * viewer closed or taken away mid-fade is neither shown nor finished.
+ * Fades the viewer in, then calls onComplete once. Returns a cancel, which a viewer closed
+ * or taken away mid-fade calls: its frame, timer and listener go, so this fade can neither
+ * show the viewer nor finish a later one.
  */
-export function revealIframe(
-    iframe: HTMLIFrameElement,
-    onComplete: () => void,
-    wanted: () => boolean = () => true,
-): void {
-    const complete = () => {
-        if (wanted()) onComplete();
+export function revealIframe(iframe: HTMLIFrameElement, onComplete: () => void): () => void {
+    let over = false;
+    let frame = 0;
+    let fallback: ReturnType<typeof setTimeout> | undefined;
+
+    const onEnd = () => finish();
+    const stop = () => {
+        over = true;
+        cancelAnimationFrame(frame);
+        clearTimeout(fallback);
+        iframe.removeEventListener('transitionend', onEnd);
+    };
+    const finish = () => {
+        if (over) return;
+        stop();
+        onComplete();
     };
 
     if (stillness()) {
         iframe.style.transition = '';
         iframe.style.opacity = '1';
-        complete();
-        return;
+        finish();
+        return stop;
     }
 
     iframe.style.transition = 'opacity 0.25s ease';
     // rAF ensures the transition property is committed before opacity changes,
     // so the browser sees a genuine before→after state to animate
-    requestAnimationFrame(() => {
-        if (!wanted()) return;
+    frame = requestAnimationFrame(() => {
+        if (over) return;
         iframe.style.opacity = '1';
         // Fallback timer in case transitionend doesn't fire (display:none parent, etc.)
-        const fallback = setTimeout(complete, 400);
-        iframe.addEventListener('transitionend', () => {
-            clearTimeout(fallback);
-            complete();
-        }, { once: true });
+        fallback = setTimeout(finish, 400);
+        iframe.addEventListener('transitionend', onEnd, { once: true });
     });
+
+    return stop;
 }
