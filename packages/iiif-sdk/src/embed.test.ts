@@ -389,7 +389,8 @@ describe('EmbedIiif — a picture it can’t show', () => {
         expect(embed.currentState).toBe('unavailable');
         expect(img.style.filter).toBe('');
         expect(document.querySelector('.awkw-embed-unavailable')?.textContent).toBe('This image can’t be opened.');
-        expect(document.querySelector<HTMLIFrameElement>('iframe')!.style.opacity).toBe('0');
+        /* Its frame, which had nothing to show, taken away until it's asked again. */
+        expect(document.querySelector('iframe')).toBeNull();
         expect(img.getAttribute('aria-label')).toBe('A study — can’t be opened');
     });
 
@@ -416,8 +417,15 @@ describe('EmbedIiif — a picture it can’t show', () => {
         await settle();
         expect(embed.currentState).toBe('unavailable');
 
-        await opened(embed, img);
+        const first = document.querySelector('iframe');
+
+        expect(first).toBeNull();
+
+        const second = await opened(embed, img);
         expect(fetched).toHaveBeenCalledTimes(2);
+        /* A fresh frame, not the one loaded while the picture was private. */
+        expect(second).not.toBe(first);
+        expect(document.querySelectorAll('iframe')).toHaveLength(1);
         expect(document.querySelector('.awkw-embed-unavailable')!.textContent).toBe('');
     });
 
@@ -450,5 +458,56 @@ describe('EmbedIiif — reduced motion', () => {
         /* Open at once, with no frame awaited and no transitionend. */
         expect(iframe.style.transition).toBe('');
         expect(embed.currentState).toBe('interactive');
+    });
+});
+
+describe('EmbedIiif — closed or taken away mid-fade', () => {
+    beforeEach(() => { document.body.innerHTML = ''; });
+
+    for (const [how, takeAway] of [
+        ['closed', (embed: EmbedIiif) => embed.close()],
+        ['taken away', (embed: EmbedIiif) => embed.destroy()],
+    ] as const) {
+        it(`stays ${how}: the fade neither shows the viewer nor hides the image`, async () => {
+            const img = makeImg();
+            const embed = new EmbedIiif(img, VIEWER_BASE);
+
+            img.click();
+            const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
+            iframe.dispatchEvent(new Event('load'));
+            await settle();
+            expect(embed.currentState).toBe('transitioning');
+
+            takeAway(embed);
+            await new Promise((r) => requestAnimationFrame(r));
+            iframe.dispatchEvent(new Event('transitionend'));
+
+            expect(embed.currentState).toBe('idle');
+            expect(iframe.style.opacity).not.toBe('1');
+            expect(img.style.display).toBe('');
+        });
+    }
+});
+
+describe('EmbedIiif — a slow image service', () => {
+    beforeEach(() => { document.body.innerHTML = ''; });
+    afterEach(() => { vi.useRealTimers(); });
+
+    it('gives up asking after three seconds, and opens the viewer as it would have', async () => {
+        vi.useFakeTimers();
+        vi.stubGlobal('fetch', vi.fn((_url: string, init: RequestInit) =>
+            new Promise((_, reject) => {
+                init.signal!.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+            })));
+        const img = makeImg();
+        const embed = new EmbedIiif(img, VIEWER_BASE);
+
+        img.click();
+        document.querySelector('iframe')!.dispatchEvent(new Event('load'));
+        await vi.advanceTimersByTimeAsync(2999);
+        expect(embed.currentState).toBe('loading');
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(embed.currentState).toBe('transitioning');
     });
 });

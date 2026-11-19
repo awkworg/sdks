@@ -2,6 +2,9 @@ import { EmbedBase } from '@awkw/embed-core';
 
 export { EmbedState } from '@awkw/embed-core';
 
+/** How long the image service has to say whether it has the picture. */
+const ASK_FOR_MS = 3000;
+
 export class EmbedIiif extends EmbedBase {
     private readonly viewerBase: string;
 
@@ -25,15 +28,20 @@ export class EmbedIiif extends EmbedBase {
      * so the embed never refuses a picture it merely couldn't check.
      */
     protected async available(): Promise<boolean> {
+        /* A slow answer counts as one it couldn't get, so the viewer isn't held for it: a timer, which every browser has, rather than AbortSignal.timeout(). */
+        const giveUp = new AbortController();
+        const timer = setTimeout(() => giveUp.abort(), ASK_FOR_MS);
+
         try {
-            /* A slow answer counts as one it couldn't get, so the viewer isn't held for it. */
             const answer = await fetch(`${this.viewerBase}/${this.identifier}/info.json`, {
-                signal: AbortSignal.timeout(3000),
+                signal: giveUp.signal,
             });
 
             return ![401, 403, 404, 410].includes(answer.status);
         } catch {
             return true;
+        } finally {
+            clearTimeout(timer);
         }
     }
 

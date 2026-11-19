@@ -44,7 +44,7 @@ export class EmbedFoo extends EmbedBase {
 
 `this.identifier` (set by `super()` from `readIdentifier`) is available in `buildIframeUrl` and `iframeTitle`.
 
-A subclass may also override `available(): Promise<boolean>`, asked once the image is first reached, to say whether the viewer has anything to show (the IIIF embed asks the picture's `info.json`). Answering `false` keeps the image, with a notice, in the `unavailable` state, rather than revealing an empty viewer. It defaults to `true`, and a rejection counts as `true`.
+A subclass may also override `available(): Promise<boolean>`, asked when the image is first reached, and again on the next click after it answered `false`, to say whether the viewer has anything to show (the IIIF embed asks the picture's `info.json`, giving up after three seconds). Answering `false` keeps the image, with a notice, in the `unavailable` state, rather than revealing an empty viewer. It defaults to `true`, and a rejection counts as `true`.
 
 ## State machine
 
@@ -56,7 +56,8 @@ idle ──mouseenter/focus──► hovering ──click/Enter/Space──► l
 - **hovering → loading**: blurs/scales the image.
 - **loading → transitioning**: iframe fades in (`opacity: 0 → 1`), `pointer-events` enabled.
 - **transitioning → interactive**: image hidden (`display: none`), `aria-label` removed, focus moved into the iframe, the `.awkw-embed-close` button shown.
-- **loading → unavailable**: `available()` said `false`; the image is unblurred and a `.awkw-embed-unavailable` notice shown.
+- **loading → unavailable**: `available()` said `false`; the image is unblurred, a `.awkw-embed-unavailable` notice shown, and the frame taken away.
+- **unavailable → loading**: a click, Enter or Space asks `available()` again, with a fresh frame.
 - **interactive → idle**: `close()`, or the close button: the iframe hidden, the image shown and focused.
 
 Clicking from `idle` skips directly to `loading` (hover + activate in one gesture), and a second click while `loading` does nothing. `destroy()` takes the embed away: its wrapper, iframe and listeners go, and the image is as it was. With `prefers-reduced-motion: reduce`, the blur doesn't animate and the iframe appears without fading.

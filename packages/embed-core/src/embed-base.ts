@@ -194,6 +194,9 @@ export abstract class EmbedBase {
     private insertIframe(): void {
         if (this.iframe || !this.wrapper) return;
 
+        /* Its controls once; a frame anew whenever there is none, after one that had nothing to show. */
+        if (!this.closer) this.insertControls(this.wrapper);
+
         const rect = this.wrapper.getBoundingClientRect();
         const w = Math.round(rect.width) || parseInt(this.wrapper.style.width) || 800;
         const h = Math.round(rect.height) || 450;
@@ -209,6 +212,12 @@ export abstract class EmbedBase {
         // and the load event may fire before activate() is called (prewarmed on hover)
         iframe.addEventListener('load', () => { this.iframeLoaded = true; }, { once: true, signal: this.listening.signal });
 
+        this.iframeLoaded = false;
+        this.wrapper.insertBefore(iframe, this.closer);
+        this.iframe = iframe;
+    }
+
+    private insertControls(wrapper: HTMLDivElement): void {
         /* A way back to the image, shown once the viewer is open. */
         const closer = document.createElement('button');
         closer.type = 'button';
@@ -225,10 +234,8 @@ export abstract class EmbedBase {
         notice.setAttribute('role', 'status');
         notice.style.cssText = NOTICE_QUIET;
 
-        this.wrapper.appendChild(iframe);
-        this.wrapper.appendChild(closer);
-        this.wrapper.appendChild(notice);
-        this.iframe = iframe;
+        wrapper.appendChild(closer);
+        wrapper.appendChild(notice);
         this.closer = closer;
         this.notice = notice;
     }
@@ -248,7 +255,7 @@ export abstract class EmbedBase {
                 this.img.removeAttribute('aria-label');
                 /* The visitor's next keys go to the viewer they opened. */
                 this.iframe?.focus();
-            });
+            }, () => this._state === 'transitioning' && !this.destroyed);
         };
 
         const loaded = () => {
@@ -273,8 +280,11 @@ export abstract class EmbedBase {
     /* Nothing to show: the image stays, unblurred, saying so, rather than opening an empty viewer. */
     private unavailable(): void {
         unblurImage(this.img);
-        /* Asked afresh on the next click: it may have been made public since. */
+        /* Asked afresh on the next click, it may have been made public since: and its frame, loaded while it wasn't, is made anew then. */
         this.checked = null;
+        this.iframe?.remove();
+        this.iframe = null;
+        this.iframeLoaded = false;
 
         if (this.notice) {
             this.notice.style.cssText = NOTICE_SAID;

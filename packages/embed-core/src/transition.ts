@@ -21,11 +21,23 @@ export function unblurImage(img: HTMLImageElement): void {
     img.style.transform = '';
 }
 
-export function revealIframe(iframe: HTMLIFrameElement, onComplete: () => void): void {
+/**
+ * Fades the viewer in, then calls onComplete; `wanted` is asked before each step, so a
+ * viewer closed or taken away mid-fade is neither shown nor finished.
+ */
+export function revealIframe(
+    iframe: HTMLIFrameElement,
+    onComplete: () => void,
+    wanted: () => boolean = () => true,
+): void {
+    const complete = () => {
+        if (wanted()) onComplete();
+    };
+
     if (stillness()) {
         iframe.style.transition = '';
         iframe.style.opacity = '1';
-        onComplete();
+        complete();
         return;
     }
 
@@ -33,12 +45,13 @@ export function revealIframe(iframe: HTMLIFrameElement, onComplete: () => void):
     // rAF ensures the transition property is committed before opacity changes,
     // so the browser sees a genuine before→after state to animate
     requestAnimationFrame(() => {
+        if (!wanted()) return;
         iframe.style.opacity = '1';
         // Fallback timer in case transitionend doesn't fire (display:none parent, etc.)
-        const fallback = setTimeout(onComplete, 400);
+        const fallback = setTimeout(complete, 400);
         iframe.addEventListener('transitionend', () => {
             clearTimeout(fallback);
-            onComplete();
+            complete();
         }, { once: true });
     });
 }
