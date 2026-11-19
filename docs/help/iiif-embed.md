@@ -83,7 +83,9 @@ Your other attributes, such as your own classes, `srcset` and `sizes`, stay as t
 
 A click that comes first, such as a tap on a phone, starts loading the viewer and opens it once it's ready.
 
-The viewer stays open until the page reloads. There's no button to close it.
+Once the viewer is open, a **×** button in its top right corner closes it and shows the image again, which a click opens again. Your code can close it too: see [Close or take away an embed](#close-or-take-away-an-embed).
+
+If the picture can't be shown, because `data-identifier` names no public picture, the image stays where it is with "This image can’t be opened" across its foot, rather than an empty viewer.
 
 ## Keyboard and screen readers
 
@@ -91,8 +93,9 @@ The viewer stays open until the page reloads. There's no button to close it.
 - It labels the image with its `alt` text and "— click to interact", such as "Harbour at Dusk, 2024 — click to interact". With no `alt`, the label is "Image — click to interact".
 - Enter and Space open the viewer. Space doesn't scroll the page while the image has focus.
 - The viewer's frame takes the image's `alt` text as its title, or "Interactive Image Viewer" with no `alt`. Its buttons are labelled "Zoom in", "Zoom out" and "Reset zoom".
-- When the viewer opens, the image is hidden and its label removed. The embed doesn't move focus into the viewer for you.
-- The blur and fade run whatever the visitor's reduced motion setting. They're short: under a second together.
+- When the viewer opens, the image is hidden and its label removed, and focus moves into the viewer. The close button is labelled "Close the viewer". Closing moves focus back to the image.
+- For a visitor who asks for reduced motion, the image doesn't scale or blur gradually, and the viewer appears without fading in.
+- A picture that can't be opened is labelled with its `alt` text and "— can’t be opened", and its notice is a status message, so screen readers read it.
 
 ## Follow an embed's state
 
@@ -116,12 +119,13 @@ document.addEventListener('awkw-iiif:statechange', (event) => {
 | `loading` | The image was clicked or pressed. It's blurred while the viewer finishes loading. |
 | `transitioning` | The viewer has loaded and is fading in. |
 | `interactive` | The viewer is open and the image is hidden. |
+| `unavailable` | The picture can't be shown. The image stays, with a notice across it. |
 
-An embed only moves forward: it never goes back to an earlier state. A visitor who clicks again while the viewer is loading can make a state arrive more than once, so act on the value of `state` rather than counting events.
+An embed moves forward through these, except that closing the viewer sends `idle` again, and a click on a picture marked `unavailable` asks again. A second click while the viewer is loading changes nothing, so each state arrives once each time the viewer opens.
 
 ## Style it
 
-The image is yours to style as usual. When the pointer or focus first reaches it, the embed puts it inside a wrapper, `<div class="awkw-embed-wrap">`, the size of the image at that moment. The viewer's `<iframe>` goes in the same wrapper.
+The image is yours to style as usual. When the pointer or focus first reaches it, the embed puts it inside a wrapper, `<div class="awkw-embed-wrap">`, as wide as the image at that moment and never wider than its container, keeping the image's shape. The viewer's `<iframe>` and its close button go in the same wrapper.
 
 These are the hooks you can use:
 
@@ -131,6 +135,8 @@ These are the hooks you can use:
 | `img[data-awkw-iiif="ready"]` | An image the embed has set up. |
 | `.awkw-embed-wrap` | The wrapper, added on first hover or focus. |
 | `.awkw-embed-wrap iframe` | The viewer. |
+| `.awkw-embed-close` | The button that closes the viewer. |
+| `.awkw-embed-unavailable` | The notice on a picture that can't be shown. |
 
 For example, to round the corners and add a shadow before and after the viewer opens:
 
@@ -189,7 +195,24 @@ gallery.append(img);
 init({ root: gallery });
 ```
 
-The script tag build sets up only the embeds on the page when it's ready, and doesn't give you `init()`. For pictures you add later, use the npm package.
+The script tag build gives the page the same `init()` as `AwkwIiif.init()`, on the viewer address its tag names. Call it the same way for pictures you add later:
+
+```js
+AwkwIiif.init({ root: gallery });
+```
+
+## Close or take away an embed
+
+`embedFor(img)` gives an image's embed once `init()` has set it up, or `null` before. Its `close()` closes the viewer and shows the image again. `destroy(img)` takes the embed away: the wrapper, the viewer and the embed's listeners go, the image is as it was, and `init()` would set it up afresh.
+
+```js
+import { destroy, embedFor } from '@awkw/iiif-embed';
+
+embedFor(img)?.close();
+destroy(img);
+```
+
+With the script tag, they're `AwkwIiif.embedFor()` and `AwkwIiif.destroy()`.
 
 ## Another viewer address
 
@@ -205,6 +228,6 @@ Leave both out to use `https://iiif.awkw.org`.
 
 ## Things to know
 
-- **The wrapper keeps its first size.** It takes the image's size in pixels when the pointer or focus first reaches it. If the page then changes width, such as when a phone is turned, the embed stays the size it was.
-- **A wrong address opens an empty viewer.** If `data-identifier` doesn't match a public picture, the viewer opens to a black frame. Check it against the picture's Image link, and check the picture is still public.
+- **The wrapper is never wider than its first size.** It takes the image's width when the pointer or focus first reaches it, and narrows with a narrower page, keeping its shape. If the page then grows wider, it stays at that first width.
+- **A wrong address can't be opened.** If `data-identifier` doesn't match a public picture, the embed says "This image can’t be opened" on the image. Check it against the picture's Image link, and check the picture is still public.
 - **Some pictures have a largest size.** If `src` asks for a width bigger than the picture allows, the image doesn't load. Ask for a smaller width.

@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { EmbedMap } from './embed';
 
+/** Lets the embed's check of what it can show settle before a frame is awaited. */
+const settle = () => new Promise((r) => setTimeout(r, 0));
+
 const MAPS_BASE = 'https://maps.example.test';
 
 function makeImg(overrides: Partial<{ hashid: string; width: number; height: number; alt: string }> = {}): HTMLImageElement {
@@ -116,7 +119,9 @@ describe('EmbedMap — DOM wrapping', () => {
 
         const wrapper = document.querySelector<HTMLDivElement>('.awkw-embed-wrap');
         expect(wrapper?.style.width).toBe('640px');
-        expect(wrapper?.style.height).toBe('360px');
+        /* Its shape kept, narrower with a narrower page. */
+        expect(wrapper?.style.aspectRatio).toBe('640 / 360');
+        expect(wrapper?.style.maxWidth).toBe('100%');
     });
 
     it('does not double-wrap on repeated hover', () => {
@@ -191,6 +196,7 @@ describe('EmbedMap — transition', () => {
         const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
         iframe.dispatchEvent(new Event('load'));
 
+        await settle();
         await new Promise(r => requestAnimationFrame(r));
         expect(iframe.style.opacity).toBe('1');
     })
@@ -205,6 +211,7 @@ describe('EmbedMap — transition', () => {
 
         img.click();
 
+        await settle();
         await new Promise(r => requestAnimationFrame(r));
         expect(iframe.style.opacity).toBe('1');
     })
@@ -226,6 +233,7 @@ describe('EmbedMap — transition', () => {
         const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
         iframe.dispatchEvent(new Event('load'));
         // Wait for the rAF in revealIframe to run so it registers the transitionend listener
+        await settle();
         await new Promise(r => requestAnimationFrame(r));
         iframe.dispatchEvent(new Event('transitionend'));
 
@@ -271,5 +279,33 @@ describe('EmbedMap — events', () => {
         img.dispatchEvent(new MouseEvent('mouseenter'));
 
         expect(fired).toBe(true);
+    });
+});
+
+describe('EmbedMap — closing and taking away, from the shared base', () => {
+    beforeEach(() => { document.body.innerHTML = ''; });
+
+    it('opens with focus in the map, closes back to the image, and takes itself away', async () => {
+        const img = makeImg();
+        const embed = new EmbedMap(img, MAPS_BASE);
+
+        img.click();
+        const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
+        iframe.dispatchEvent(new Event('load'));
+        await settle();
+        await new Promise((r) => requestAnimationFrame(r));
+        iframe.dispatchEvent(new Event('transitionend'));
+
+        expect(embed.currentState).toBe('interactive');
+        expect(document.activeElement).toBe(iframe);
+
+        document.querySelector<HTMLButtonElement>('.awkw-embed-close')!.click();
+        expect(embed.currentState).toBe('idle');
+        expect(document.activeElement).toBe(img);
+
+        embed.destroy();
+        expect(embed.destroyed).toBe(true);
+        expect(document.querySelector('.awkw-embed-wrap')).toBeNull();
+        expect(img.parentElement).toBe(document.body);
     });
 });
