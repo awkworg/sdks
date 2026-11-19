@@ -528,6 +528,68 @@ describe('EmbedIiif — closed after the fade began', () => {
     });
 });
 
+describe('EmbedIiif — closed after the fade began, and opened again at once', () => {
+    beforeEach(() => { document.body.innerHTML = ''; });
+    afterEach(() => { vi.useRealTimers(); });
+
+    /* Open, and wait for the fade's frame: its transitionend listener and fallback timer are set. */
+    async function fading() {
+        vi.useFakeTimers();
+        const img = makeImg();
+        const states: string[] = [];
+        img.addEventListener('awkw-iiif:statechange', (e) => states.push((e as CustomEvent).detail.state));
+        const embed = new EmbedIiif(img, VIEWER_BASE);
+
+        img.click();
+        const iframe = document.querySelector<HTMLIFrameElement>('iframe')!;
+        iframe.dispatchEvent(new Event('load'));
+        await vi.advanceTimersByTimeAsync(20);
+        expect(iframe.style.opacity).toBe('1');
+
+        /* Closed, then opened again before anything of the first fade has run. */
+        embed.close();
+        states.length = 0;
+        img.click();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(embed.currentState).toBe('transitioning');
+
+        return { embed, iframe, states };
+    }
+
+    it('leaves the new fade to its own end: the first fade’s transitionend finishes nothing', async () => {
+        const { embed, iframe, states } = await fading();
+
+        /* Before the new fade's frame has run, so the end can only be the first fade's. */
+        iframe.dispatchEvent(new Event('transitionend'));
+
+        expect(embed.currentState).toBe('transitioning');
+        expect(states).not.toContain('interactive');
+
+        /* And the new fade still finishes, once, by its own fallback. */
+        await vi.advanceTimersByTimeAsync(500);
+        expect(states.filter((state) => state === 'interactive')).toHaveLength(1);
+        expect(embed.currentState).toBe('interactive');
+    });
+
+    it('leaves the new fade to its own end: the first fade’s fallback finishes nothing', async () => {
+        const { embed, states } = await fading();
+
+        /*
+         * The fake clock runs a frame on its next 16 ms from when it began, and a fallback is due
+         * 400 ms after its frame. The first fade's frame ran at 16, so its fallback is due at 416;
+         * reopened at 20, the new fade's frame runs at 32, its fallback due at 432. So 405 ms after
+         * the reopening, at 425, is between them.
+         */
+        await vi.advanceTimersByTimeAsync(405);
+        expect(embed.currentState).toBe('transitioning');
+        expect(states).not.toContain('interactive');
+
+        /* The new fade's own fallback finishes it, once. */
+        await vi.advanceTimersByTimeAsync(20);
+        expect(states.filter((state) => state === 'interactive')).toHaveLength(1);
+    });
+});
+
 describe('EmbedIiif — a slow image service', () => {
     beforeEach(() => { document.body.innerHTML = ''; });
     afterEach(() => { vi.useRealTimers(); });
