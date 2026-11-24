@@ -55,7 +55,7 @@ The script tag build sets itself up when the page is ready.
 
 ```html
 <!-- Another viewer, such as a local one -->
-<script src="/dist/iiif.js" data-viewer-base="https://iiif.vignage.test" defer></script>
+<script src="/dist/iiif.js" data-viewer-base="https://iiif.awkw.test" defer></script>
 ```
 
 `data-viewer-base` defaults to `https://iiif.awkw.org`. The iframe src becomes `{base}/{identifier}/embed`.
@@ -82,7 +82,7 @@ npm run dev:iiif     # watch-build → packages/iiif-sdk/dist/iiif.js
 # http://localhost:PORT/packages/iiif-sdk/test/
 ```
 
-The test harness at `test/index.html` uses `data-viewer-base="https://iiif.vignage.test"`. Make sure `iiif.vignage.test` is running locally with the images you want to test against.
+The test harness at `test/index.html` uses `data-viewer-base="https://iiif.awkw.test"`. Make sure `iiif.awkw.test` is running locally with the images you want to test against.
 
 ## Build
 
