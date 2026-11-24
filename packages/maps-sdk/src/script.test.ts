@@ -10,7 +10,7 @@ function image(): HTMLImageElement {
     const img = document.createElement('img');
     img.className = 'awkw-maps-embed';
     img.dataset.hashid = HASHID;
-    img.setAttribute('src', `https://maps.vignage.test/${HASHID}/v1/800.webp`);
+    img.setAttribute('src', `https://maps.awkw.test/${HASHID}/v1/800.webp`);
     document.body.appendChild(img);
     return img;
 }

@@ -34,7 +34,7 @@ A new version of a map has new image URLs, so after an update, use the new embed
 
 ## Which maps service
 
-Maps open on `https://maps.awkw.org`. To use another, such as `https://maps.vignage.test` locally, the site names it on the script tag:
+Maps open on `https://maps.awkw.org`. To use another, such as `https://maps.awkw.test` locally, the site names it on the script tag:
 
 ```html
 <script src=".../maps.js" data-maps-base="https://maps.example.org" defer></script>
@@ -72,7 +72,7 @@ The event bubbles, so listening on `document` catches every map on the page.
 
 ## Local dev
 
-The test harness, `test/index.html`, shows the example maps from a local maps service at `https://maps.vignage.test` (`npm run fixtures` in [awkworg/maps](https://github.com/awkworg/maps) loads them):
+The test harness, `test/index.html`, shows the example maps from a local maps service at `https://maps.awkw.test` (`npm run fixtures` in [awkworg/maps](https://github.com/awkworg/maps) loads them):
 
 ```bash
 # From the repository root
